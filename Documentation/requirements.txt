@@ -1,0 +1,4 @@
+Aplicația de banking online este un prototip care permite utilizatorilor să vizualizeze soldul contului, istoricul tranzacțiilor,
+să efectueze transferuri de bani și să gestioneze cardurile asociate conturilor. Administratorii pot accesa listele de utilizatori și 
+istoricul tranzacțiilor, având posibilitatea de a inversa tranzacțiile atunci când este necesar. Aplicația include autentificare și autorizare 
+pentru securitatea accesului.

@@ -1,12 +1,14 @@
 from typing import Annotated
 from fastapi import Depends, FastAPI
-import models
+import auth.schemas as schemas
 from database import engine, SessionLocal
 from sqlalchemy.orm import Session
+from auth import auth
 
 app = FastAPI()
+app.include_router(auth.router)
 
-models.Base.metadata.create_all(bind=engine)
+schemas.Base.metadata.create_all(bind=engine)
 
 @app.get("/")
 def read_root():

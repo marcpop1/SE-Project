@@ -1,5 +1,6 @@
 from typing import Annotated
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 import auth.schemas as schemas
 from database import engine, SessionLocal
 from sqlalchemy.orm import Session
@@ -8,6 +9,20 @@ from starlette import status
 from auth.auth import get_current_user
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:5173",  # Frontend running on localhost
+    "http://localhost:8000",  # Backend running on localhost
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # List of allowed origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all HTTP methods
+    allow_headers=["*"],  # Allow all headers
+)
+
 app.include_router(auth.router)
 
 schemas.Base.metadata.create_all(bind=engine)

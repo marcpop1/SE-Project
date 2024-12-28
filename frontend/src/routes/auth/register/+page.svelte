@@ -103,6 +103,10 @@
           >Sign up</button
         >
       </div>
+
+      <p class="text-sm font-light text-gray-500 dark:text-gray-400">
+        Already have an account? <a href="/auth/login" class="font-medium text-indigo-600 hover:underline dark:text-primary-500">Sign in</a>
+    </p>
     </form>
   </div>
 </div>

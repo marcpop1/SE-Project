@@ -7,7 +7,7 @@ from passlib.context import CryptContext
 import os
 from database import SessionLocal
 from sqlalchemy.orm import Session
-from .schemas import CreateUserRequest, Token
+from .schemas import CreateUserRequest, Token, UserDetailsResponse
 from .models import User
 from starlette import status
 from jose import JWTError, jwt
@@ -86,7 +86,10 @@ async def get_current_user(request: Request):
         if username is None or user_id is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                 detail='Could not validate user.')
-        return {'username': username, 'id': user_id}
+        return UserDetailsResponse(
+            id = user_id,
+            username = username
+        )
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                 detail='Could not validate user. JWT Error.')

@@ -1,11 +1,7 @@
 <script lang="ts">
-    export let cards = [
-        { currency: "RON" },
-        { currency: "EUR" },
-        { currency: "USD" },
-        { currency: "GBP" },
-        { currency: "RON" },
-    ];
+    import type { Card } from "$lib/models/Card";
+
+    export let cards: Card[] = [];
 </script>
 
 <div

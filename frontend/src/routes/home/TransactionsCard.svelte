@@ -1,12 +1,7 @@
-<script>
-    export let transactions = [
-        { account: "user1", amount: "10", currency: "RON" },
-        { account: "user3", amount: "53", currency: "RON" },
-        { account: "user2", amount: "24", currency: "USD" },
-        { account: "user7", amount: "16", currency: "RON" },
-        { account: "user12", amount: "2", currency: "EUR" },
-        { account: "user12", amount: "5", currency: "EUR" },
-    ];
+<script lang="ts">
+        import type { Transaction } from "$lib/models/Transaction";
+
+    export let transactions: Transaction[] = [];
 </script>
 
 <div
@@ -27,7 +22,7 @@
                     <div class="flex items-center">
                         <div class="flex-1 min-w-0 ms-4">
                             <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
-                                {transaction.account}
+                                {transaction.accountFromId}
                             </p>
                         </div>
                         <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">

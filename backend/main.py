@@ -1,15 +1,12 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import desc
-from auth.schemas import UserDetailsResponse
 from accounts.schemas import AccountOverviewResponse, AccountResponse
 from cards.schemas import CardResponse
 from transactions.schemas import TransactionResponse
-from database import engine, SessionLocal
-from sqlalchemy.orm import Session
+from database import engine
 from auth import auth
 from starlette import status
-from auth.auth import get_current_user
 import auth.models as auth_models
 import accounts.models as account_models
 import cards.models as card_models
@@ -20,7 +17,7 @@ from transactions.models import Transaction
 from auth import auth
 from cards import routes as card_routes
 from database import engine
-from dependecies import user_dependency
+from dependecies import user_dependency, db_dependency
 
 app = FastAPI()
 
@@ -44,7 +41,6 @@ auth_models.Base.metadata.create_all(bind=engine)
 account_models.Base.metadata.create_all(bind=engine)
 card_models.Base.metadata.create_all(bind=engine)
 transaction_models.Base.metadata.create_all(bind=engine)
-
 
 @app.get("/", status_code=status.HTTP_200_OK)
 async def get_user_account(user: user_dependency, db: db_dependency):

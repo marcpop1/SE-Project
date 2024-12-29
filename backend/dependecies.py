@@ -1,6 +1,7 @@
 import os
 from typing import Annotated
 
+from dotenv import load_dotenv
 from fastapi import Depends, HTTPException
 from jose import jwt, JWTError
 from sqlalchemy.orm import Session
@@ -9,6 +10,7 @@ from starlette import status
 from database import SessionLocal
 from fastapi import Request
 
+load_dotenv()
 SECRET_KEY = os.getenv('SECRET_KEY')
 ALGORITHM = os.getenv('ALGORITHM')
 

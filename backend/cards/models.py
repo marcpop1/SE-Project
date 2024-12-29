@@ -2,6 +2,7 @@ from sqlalchemy import Boolean, CheckConstraint, Column, DateTime, Float, Foreig
 from sqlalchemy.orm import relationship
 from database import Base
 
+
 class Card(Base):
     __tablename__ = 'cards'
     id = Column(Integer, primary_key=True, index=True)

@@ -1,4 +1,3 @@
-from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from starlette import status
@@ -8,10 +7,9 @@ import auth.models as auth_models
 import cards.models as card_models
 import transactions.models as transaction_models
 from auth import auth
+from cards import routes as card_routes
 from database import engine
 from dependecies import user_dependency
-
-load_dotenv()
 
 app = FastAPI()
 
@@ -29,6 +27,7 @@ app.add_middleware(
 )
 
 app.include_router(auth.router)
+app.include_router(card_routes.router)
 
 auth_models.Base.metadata.create_all(bind=engine)
 account_models.Base.metadata.create_all(bind=engine)

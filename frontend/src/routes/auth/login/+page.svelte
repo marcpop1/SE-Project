@@ -1,4 +1,6 @@
 <script lang='ts'>
+    import { goto } from "$app/navigation";
+
     let username: string = '';
     let password: string = '';
 
@@ -11,12 +13,14 @@
 
     const response = await fetch('http://localhost:8000/auth/login', {
       method: 'POST',
-      body: formData
+      body: formData,
+      credentials: 'include'
     });
 
     if (response.ok) {
       const data = await response.json();
       console.log('Login successful:', data);
+      await goto('/home');
     } else {
       console.error('Login failed:', response.statusText);
     }

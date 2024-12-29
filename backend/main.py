@@ -1,12 +1,15 @@
 from typing import Annotated
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-import auth.schemas as schemas
 from database import engine, SessionLocal
 from sqlalchemy.orm import Session
 from auth import auth
 from starlette import status
 from auth.auth import get_current_user
+import auth.models as auth_models
+import account.models as account_models
+import cards.models as card_models
+import transactions.models as transaction_models
 
 app = FastAPI()
 
@@ -25,7 +28,11 @@ app.add_middleware(
 
 app.include_router(auth.router)
 
-schemas.Base.metadata.create_all(bind=engine)
+auth_models.Base.metadata.create_all(bind=engine)
+account_models.Base.metadata.create_all(bind=engine)
+card_models.Base.metadata.create_all(bind=engine)
+transaction_models.Base.metadata.create_all(bind=engine)
+
 
 def get_db():
     db = SessionLocal()

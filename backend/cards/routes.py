@@ -7,7 +7,7 @@ from fastapi import APIRouter, HTTPException
 from accounts.models import Account
 from cards.models import Card
 from cards.schemas import CardDetailResponse, CreateCardRequest
-from dependecies import db_dependency, user_dependency
+from dependencies import db_dependency, user_dependency
 
 router = APIRouter(
     prefix='/cards',

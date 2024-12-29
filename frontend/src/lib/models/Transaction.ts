@@ -4,5 +4,5 @@ export interface Transaction {
     accountToId: number;
     amount: number;
     currency: string;
-    datetime: Date;
+    createdAt: Date;
 }

@@ -7,7 +7,7 @@ from jose import jwt
 from passlib.context import CryptContext
 from starlette import status
 
-from dependecies import db_dependency, SECRET_KEY, ALGORITHM
+from dependencies import db_dependency, SECRET_KEY, ALGORITHM
 from .models import User
 from .schemas import CreateUserRequest, Token
 

@@ -7,8 +7,8 @@ from passlib.context import CryptContext
 import os
 from database import SessionLocal
 from sqlalchemy.orm import Session
-from .models import CreateUserRequest, Token
-from .schemas import Users
+from .schemas import CreateUserRequest, Token
+from .models import User
 from starlette import status
 from jose import JWTError, jwt
 
@@ -36,7 +36,7 @@ db_dependency = Annotated[Session, Depends(get_db)]
 @router.post('/register', status_code=status.HTTP_201_CREATED)
 async def create_user(db: db_dependency,
                       create_user_request: CreateUserRequest):
-    create_user_model = Users(
+    create_user_model = User(
         username=create_user_request.username,
         hashed_password=bcrypt_context.hash(create_user_request.password)
     )
@@ -61,7 +61,7 @@ async def logout(response: Response):
     return {"message": "Successfully logged out"}
 
 def authenticate_user(username: str, password: str, db):
-    user = db.query(Users).filter(Users.username == username).first()
+    user = db.query(User).filter(User.username == username).first()
     if not user:
         return False
     if not bcrypt_context.verify(password, user.hashed_password):

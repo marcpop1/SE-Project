@@ -14,7 +14,7 @@
 
     event.preventDefault();
 
-    const response = await fetch("http://localhost:8000/auth", {
+    const response = await fetch("http://localhost:8000/auth/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

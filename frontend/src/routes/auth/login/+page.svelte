@@ -9,7 +9,7 @@
     formData.append('username', username);
     formData.append('password', password);
 
-    const response = await fetch('http://localhost:8000/auth/token', {
+    const response = await fetch('http://localhost:8000/auth/login', {
       method: 'POST',
       body: formData
     });

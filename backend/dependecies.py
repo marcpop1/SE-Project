@@ -42,4 +42,4 @@ async def get_current_user(request: Request):
 
 
 db_dependency = Annotated[Session, Depends(get_db)]
-user_dependency = Annotated[dict, Depends(get_current_user)]
+user_dependency = Annotated[UserDetailsResponse, Depends(get_current_user)]

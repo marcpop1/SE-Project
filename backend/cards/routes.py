@@ -19,7 +19,7 @@ router = APIRouter(
 def get_cards_for_user(db: db_dependency, user: user_dependency):
     cards = (db.query(Card)
              .join(Account)
-             .filter(Account.user_id == user.get('id'))
+             .filter(Account.user_id == user.id)
              .all()
              )
 

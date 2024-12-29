@@ -7,3 +7,11 @@ class CreateUserRequest(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+class UserDetailsResponse(BaseModel):
+    id: int
+    username: str
+
+    class Config:
+        orm_mode = True
+        from_attributes = True

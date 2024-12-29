@@ -4,7 +4,7 @@ import string
 
 from fastapi import APIRouter, HTTPException
 
-from account.models import Account
+from accounts.models import Account
 from cards.models import Card
 from cards.schemas import CardDetailResponse, CreateCardRequest
 from dependecies import db_dependency, user_dependency
@@ -19,7 +19,7 @@ router = APIRouter(
 def get_cards_for_user(db: db_dependency, user: user_dependency):
     cards = (db.query(Card)
              .join(Account)
-             .filter(Account.user_id == user.get('id'))
+             .filter(Account.user_id == user.id)
              .all()
              )
 

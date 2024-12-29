@@ -7,6 +7,7 @@ from jose import jwt, JWTError
 from sqlalchemy.orm import Session
 from starlette import status
 
+from auth.schemas import UserDetailsResponse
 from database import SessionLocal
 from fastapi import Request
 
@@ -31,11 +32,14 @@ async def get_current_user(request: Request):
         if username is None or user_id is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                 detail='Could not validate user.')
-        return {'username': username, 'id': user_id}
+        return UserDetailsResponse(
+            id = user_id,
+            username = username
+        )
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail='Could not validate user. JWT Error.')
 
 
 db_dependency = Annotated[Session, Depends(get_db)]
-user_dependency = Annotated[dict, Depends(get_current_user)]
+user_dependency = Annotated[UserDetailsResponse, Depends(get_current_user)]

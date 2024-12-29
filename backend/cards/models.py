@@ -14,6 +14,8 @@ class Card(Base):
     cvv = Column(String(3))
     type = Column(String)
     currency = Column(String)
+    type = Column(String)
+    currency = Column(String)
     is_primary = Column(Boolean)
 
     account = relationship("Account", back_populates="cards")

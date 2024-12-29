@@ -1,15 +1,23 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import desc
+from accounts.schemas import AccountOverviewResponse, AccountResponse
+from cards.schemas import CardResponse
+from transactions.schemas import TransactionResponse
+from database import engine
+from auth import auth
 from starlette import status
-
-import account.models as account_models
 import auth.models as auth_models
+import accounts.models as account_models
 import cards.models as card_models
 import transactions.models as transaction_models
+from accounts.models import Account
+from cards.models import Card
+from transactions.models import Transaction
 from auth import auth
 from cards import routes as card_routes
 from database import engine
-from dependecies import user_dependency
+from dependecies import user_dependency, db_dependency
 
 app = FastAPI()
 
@@ -34,9 +42,33 @@ account_models.Base.metadata.create_all(bind=engine)
 card_models.Base.metadata.create_all(bind=engine)
 transaction_models.Base.metadata.create_all(bind=engine)
 
-
 @app.get("/", status_code=status.HTTP_200_OK)
-async def get_user(user: user_dependency):
+async def get_user_account(user: user_dependency, db: db_dependency):
     if user is None:
         raise HTTPException(status_code=401, detail='Authentication failed')
-    return {"User": user}
+    
+    account = db.query(Account).filter(Account.user_id == user.id).first()
+    if not account:
+        create_account_model = Account(
+            user_id = user.id,
+            balance = 0.0,
+            currency = 'RON'
+        )
+        db.add(create_account_model)
+        db.commit()
+        db.refresh(create_account_model)
+        account = create_account_model
+    
+    cards = db.query(Card).filter(Card.account_id == account.id).limit(5).all()
+    transactions = (db.query(Transaction)
+        .filter((Transaction.account_from_id == account.id) | (Transaction.account_to_id == account.id))
+        .order_by(desc(Transaction.datetime))
+        .limit(10)
+        .all())
+
+    return AccountOverviewResponse(
+        user=user,
+        account=AccountResponse.model_validate(account),
+        cards=[CardResponse.model_validate(card) for card in cards],
+        transactions=[TransactionResponse.model_validate(transaction) for transaction in transactions]
+    )

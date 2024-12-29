@@ -4,9 +4,9 @@
     import CardsCard from "./CardsCard.svelte";
     import TransactionsCard from "./TransactionsCard.svelte";
     import { goto } from "$app/navigation";
+    import type { AccountOverview } from "$lib/models/AccountOverview";
 
-    let currentUser = { balance: 2, currency: "EUR", cards: [] };
-    let user = { User: { username: null } };
+    let accountOverview: AccountOverview;
 
     onMount(async () => {
         const response = await fetch("http://localhost:8000/", {
@@ -14,8 +14,8 @@
         });
 
         if (response.ok) {
-            user = await response.json();
-            console.log(user);
+            accountOverview = await response.json();
+            console.log(accountOverview);
         } else {
             await goto("/auth/login");
         }
@@ -42,20 +42,20 @@
 </script>
 
 <div class="home">
-    <h1>Hello {user.User.username}</h1>
+    <h1>Hello {accountOverview?.user.username}</h1>
     <button on:click={logout}>Logout</button>
 
     <div class="grid grid-cols-2 gap-4">
         <div>
             <BalanceCard
-                balance={currentUser.balance}
-                currency={currentUser.currency}
+                balance={accountOverview?.account.balance}
+                currency={accountOverview?.account.currency}
             />
             <br />
-            <CardsCard />
+            <CardsCard cards={accountOverview?.cards}/>
         </div>
         <div>
-            <TransactionsCard />
+            <TransactionsCard transactions={accountOverview?.transactions}/>
         </div>
     </div>
 </div>

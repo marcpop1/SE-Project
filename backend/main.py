@@ -1,5 +1,4 @@
-from typing import Annotated
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import desc
 from auth.schemas import UserDetailsResponse
@@ -18,6 +17,10 @@ import transactions.models as transaction_models
 from accounts.models import Account
 from cards.models import Card
 from transactions.models import Transaction
+from auth import auth
+from cards import routes as card_routes
+from database import engine
+from dependecies import user_dependency
 
 app = FastAPI()
 
@@ -35,21 +38,13 @@ app.add_middleware(
 )
 
 app.include_router(auth.router)
+app.include_router(card_routes.router)
 
 auth_models.Base.metadata.create_all(bind=engine)
 account_models.Base.metadata.create_all(bind=engine)
 card_models.Base.metadata.create_all(bind=engine)
 transaction_models.Base.metadata.create_all(bind=engine)
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-db_dependency = Annotated[Session, Depends(get_db)]
-user_dependency = Annotated[UserDetailsResponse, Depends(get_current_user)]
 
 @app.get("/", status_code=status.HTTP_200_OK)
 async def get_user_account(user: user_dependency, db: db_dependency):

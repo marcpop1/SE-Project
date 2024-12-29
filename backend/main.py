@@ -1,15 +1,17 @@
-from typing import Annotated
-from fastapi import Depends, FastAPI, HTTPException
+from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from database import engine, SessionLocal
-from sqlalchemy.orm import Session
-from auth import auth
 from starlette import status
-from auth.auth import get_current_user
-import auth.models as auth_models
+
 import account.models as account_models
+import auth.models as auth_models
 import cards.models as card_models
 import transactions.models as transaction_models
+from auth import auth
+from database import engine
+from dependecies import user_dependency
+
+load_dotenv()
 
 app = FastAPI()
 
@@ -34,18 +36,8 @@ card_models.Base.metadata.create_all(bind=engine)
 transaction_models.Base.metadata.create_all(bind=engine)
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-db_dependency = Annotated[Session, Depends(get_db)]
-user_dependency = Annotated[dict, Depends(get_current_user)]
-
 @app.get("/", status_code=status.HTTP_200_OK)
-async def user(user: user_dependency):
+async def get_user(user: user_dependency):
     if user is None:
         raise HTTPException(status_code=401, detail='Authentication failed')
-    return {"User": user} 
+    return {"User": user}

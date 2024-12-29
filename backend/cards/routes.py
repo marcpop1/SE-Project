@@ -37,11 +37,11 @@ def generate_cvv() -> str:
 
 def generate_card_expiration_date(plus_year: int = 5, plus_month: int = 0) -> tuple[int, int]:
     now = datetime.datetime.now()
-    return now.month + plus_year, now.month + plus_month
+    return now.year + plus_year, now.month + plus_month
 
 
 @router.post("/", response_model=CardDetailResponse)
-async def create_card_for_user(db: db_dependency, payload: CardDetailResponse):
+async def create_card_for_user(db: db_dependency, payload: CreateCardRequest):
     account = (db.query(Account)
                .filter(Account.id == payload.account_id)
                .first())
@@ -57,13 +57,13 @@ async def create_card_for_user(db: db_dependency, payload: CardDetailResponse):
 
     created_card = Card(
         account_id=account.id,
-        card_holder_name=account.user.name,
-        card_number=card_number,
+        holder_name=account.user.name,
+        number=card_number,
         expiration_month=expiration_month,
         expiration_year=expiration_year,
         cvv=cvv,
-        card_type=payload.card_type,
-        card_currency=payload.card_currency,
+        type=payload.card_type,
+        currency=payload.card_currency,
         is_primary=payload.is_primary
     )
 
@@ -71,4 +71,4 @@ async def create_card_for_user(db: db_dependency, payload: CardDetailResponse):
     db.commit()
     db.refresh(created_card)
 
-    return created_card
+    return CardDetailResponse.model_validate(created_card)

@@ -5,17 +5,17 @@ from utils import snake_to_camel
 
 class CardDetailResponse(BaseModel):
     id: int
-    card_holder_name: str
-    card_number: str
+    holder_name: str
+    number: str
     expiration_month: int
     expiration_year: int
-    card_type: str
-    card_currency: str
+    type: str
+    currency: str
     is_primary: bool
 
     class Config:
+        orm_mode = True
         from_attributes = True
-        alias_generator = snake_to_camel
 
 
 class CreateCardRequest(BaseModel):

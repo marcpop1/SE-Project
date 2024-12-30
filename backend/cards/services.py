@@ -8,7 +8,7 @@ from accounts.repositories import AccountRepository
 from auth.schemas import UserDetailsResponse
 from cards.models import Card
 from cards.repositories import CardRepository
-from cards.schemas import CreateCardRequest
+from cards.schemas import CreateCardRequest, UpdateCardRequest
 
 
 def generate_card_number() -> str:
@@ -57,3 +57,21 @@ class CardService:
         )
 
         return self.card_repository.save(new_card)
+
+    def update_card(self, user: UserDetailsResponse, card_id: int, data: UpdateCardRequest) -> Card:
+        if data.is_primary:
+            self.card_repository.update_primary_status_by_user_id(user.id)
+
+        card_to_update = self.card_repository.find_by_id(card_id)
+        card_to_update.is_primary = data.is_primary
+        card_to_update.currency = data.card_currency
+
+        updated_card = self.card_repository.update(card_to_update)
+        if not updated_card:
+            raise HTTPException(status_code=500, detail=f"Failed to update card {card_id}")
+
+        return updated_card
+
+    def remove_card_by_id(self, card_id: int):
+        card_to_remove = self.card_repository.find_by_id(card_id)
+        self.card_repository.delete(card_to_remove)

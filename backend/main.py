@@ -1,7 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import desc
-from accounts.schemas import AccountOverviewResponse, AccountResponse
+from accounts.schemas import AccountResponse
+from models import AccountOverviewResponse
 from cards.schemas import CardResponse
 from transactions.schemas import TransactionResponse
 from database import engine

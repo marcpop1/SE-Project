@@ -2,6 +2,8 @@ from typing import Optional
 from pydantic import BaseModel
 from datetime import datetime
 
+from accounts.schemas import AccountResponse
+
 class TransactionResponse(BaseModel):
     id: int
     account_from_id: int
@@ -9,14 +11,18 @@ class TransactionResponse(BaseModel):
     amount: float
     currency: str
     created_at: datetime
-
+    account_from: Optional[AccountResponse] = None
+    account_to: Optional[AccountResponse] = None
     class Config:
-        orm_mode = True
         from_attributes = True
+        alias_generator = lambda string: ''.join(
+            word.capitalize() if i else word
+            for i, word in enumerate(string.split('_'))
+        )
+        populate_by_name = True
 
 class CreateTransactionRequest(BaseModel):
-    account_from_id: int
-    account_to_id: int
+    account_to_username: str
     amount: float
     currency: str
     created_at: Optional[datetime] = None

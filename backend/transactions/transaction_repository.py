@@ -1,6 +1,6 @@
 from typing import List, Optional
 from sqlalchemy import desc
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 from .models import Transaction
 from accounts.models import Account
 from .schemas import TransactionResponse
@@ -16,16 +16,27 @@ class TransactionRepository:
         return TransactionResponse.model_validate(transaction)
 
     def get_all(self, user_id: int) -> List[TransactionResponse]:
-        transactions = (self.db.query(Transaction)
-                        .join(Account, (Transaction.account_from_id == Account.id) | (Transaction.account_to_id == Account.id))
-                        .filter(Account.user_id == user_id)
-                        .order_by(desc(Transaction.created_at))
-                        .all())
+        account_from = aliased(Account)
+        account_to = aliased(Account)
+
+        # Query with aliases
+        transactions = (
+            self.db.query(Transaction)
+            .join(account_from, Transaction.account_from_id == account_from.id)
+            .join(account_to, Transaction.account_to_id == account_to.id)
+            .filter((account_from.user_id == user_id) | (account_to.user_id == user_id))
+            .order_by(desc(Transaction.created_at))
+            .all()
+        )
         return [self._convert_to_response(transaction, user_id) for transaction in transactions]
 
     def get_by_id(self, transaction_id: int, user_id: int) -> Optional[TransactionResponse]:
+        account_from = aliased(Account)
+        account_to = aliased(Account)
+
         transaction = (self.db.query(Transaction)
-                       .join(Account, (Transaction.account_from_id == Account.id) | (Transaction.account_to_id == Account.id))
+                       .join(account_from, Transaction.account_from_id == Account.id)
+                       .join(account_to, Transaction.account_to_id == Account.id)
                        .filter(Transaction.id == transaction_id, Account.user_id == user_id)
                        .first())
         if transaction:

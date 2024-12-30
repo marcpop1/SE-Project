@@ -34,7 +34,8 @@ async def get_current_user(request: Request):
                                 detail='Could not validate user.')
         return UserDetailsResponse(
             id = user_id,
-            username = username
+            username = username,
+            name = ""
         )
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,

@@ -1,7 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import desc
-from accounts.schemas import AccountOverviewResponse, AccountResponse
+from accounts.schemas import AccountResponse
+from models import AccountOverviewResponse
 from cards.schemas import CardResponse
 from transactions.schemas import TransactionResponse
 from database import engine
@@ -15,9 +16,11 @@ from accounts.models import Account
 from cards.models import Card
 from transactions.models import Transaction
 from auth import auth
+from accounts import routes as account_routes
 from cards import routes as card_routes
+from transactions import routes as transaction_routes
 from database import engine
-from dependecies import user_dependency, db_dependency
+from dependencies import user_dependency, db_dependency
 
 app = FastAPI()
 
@@ -35,7 +38,9 @@ app.add_middleware(
 )
 
 app.include_router(auth.router)
+app.include_router(account_routes.router)
 app.include_router(card_routes.router)
+app.include_router(transaction_routes.router)
 
 auth_models.Base.metadata.create_all(bind=engine)
 account_models.Base.metadata.create_all(bind=engine)
@@ -62,7 +67,7 @@ async def get_user_account(user: user_dependency, db: db_dependency):
     cards = db.query(Card).filter(Card.account_id == account.id).limit(5).all()
     transactions = (db.query(Transaction)
         .filter((Transaction.account_from_id == account.id) | (Transaction.account_to_id == account.id))
-        .order_by(desc(Transaction.datetime))
+        .order_by(desc(Transaction.created_at))
         .limit(10)
         .all())
 

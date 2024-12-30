@@ -1,16 +1,10 @@
-import datetime
-import random
-import string
-
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends
 from fastapi_restful.cbv import cbv
 
-from accounts.models import Account
 from auth.schemas import UserDetailsResponse
-from cards.models import Card
 from cards.schemas import CardDetailResponse, CreateCardRequest, UpdateCardRequest
 from cards.services import CardService
-from dependecies import db_dependency, user_dependency, LoggedUser, get_card_service, get_current_user
+from dependecies import get_card_service, get_current_user
 
 router = APIRouter(
     prefix='/cards',

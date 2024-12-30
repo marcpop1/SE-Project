@@ -1,3 +1,4 @@
+from sqlalchemy import update
 from sqlalchemy.orm import Session
 
 from accounts.models import Account
@@ -15,9 +16,15 @@ class CardRepository(BaseRepository[Card]):
         return self.session.query(Card).join(Account).filter(predicate).all()
 
     def update_primary_status_by_user_id(self, user_id: int, is_primary: bool = False) -> None:
-        self.session.query(Card) \
-            .join(Account) \
-            .filter(Account.user_id == user_id) \
-            .update({Card.is_primary: is_primary})
-
-        self.session.commit()
+        stmt = (
+            update(Card)
+            .where(Card.account_id == Account.id)
+            .where(Account.user_id == user_id)
+            .values(is_primary=False)
+        )
+        try:
+            self.session.execute(stmt)
+            self.session.commit()
+        except Exception as e:
+            print(f"Error: {e}")
+            self.session.rollback()

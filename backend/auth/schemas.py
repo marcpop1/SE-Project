@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 
 class CreateUserRequest(BaseModel):
+    name: str
     username: str
     password: str
 
@@ -11,7 +12,8 @@ class Token(BaseModel):
 class UserDetailsResponse(BaseModel):
     id: int
     username: str
+    name: str
+    role: str
 
     class Config:
-        orm_mode = True
         from_attributes = True

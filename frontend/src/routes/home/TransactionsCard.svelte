@@ -11,7 +11,7 @@
         <h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white">
             Transactions
         </h5>
-        <a href="/" class="text-sm font-medium text-blue-600 hover:underline dark:text-blue-500">
+        <a href="/transactions" class="text-sm font-medium text-blue-600 hover:underline dark:text-blue-500">
             View all
         </a>
     </div>

@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Enum
 from sqlalchemy.orm import relationship
+from auth.user_roles import UserRole
 from database import Base
 
 
@@ -9,5 +10,6 @@ class User(Base):
     username = Column(String, unique=True, index=True)
     name = Column(String)
     hashed_password = Column(String)
+    role = Column(Enum(UserRole), default=UserRole.USER)
 
     accounts = relationship("Account", back_populates="user")

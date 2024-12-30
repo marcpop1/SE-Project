@@ -4,7 +4,7 @@ from fastapi_restful.cbv import cbv
 from auth.schemas import UserDetailsResponse
 from cards.schemas import CardDetailResponse, CreateCardRequest, UpdateCardRequest
 from cards.services import CardService
-from dependecies import get_card_service, get_current_user
+from dependencies import get_card_service, get_current_user
 
 router = APIRouter(
     prefix='/cards',

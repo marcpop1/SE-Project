@@ -1,8 +1,7 @@
+from typing import Optional
 from pydantic import BaseModel
 
 from auth.schemas import UserDetailsResponse
-from cards.schemas import CardResponse
-from transactions.schemas import TransactionResponse
 
 
 class AccountResponse(BaseModel):
@@ -10,13 +9,17 @@ class AccountResponse(BaseModel):
     user_id: int
     balance: float
     currency: str
+    user: Optional[UserDetailsResponse] = None
 
     class Config:
         orm_mode = True
         from_attributes = True
 
-class AccountOverviewResponse(BaseModel):
-    user: UserDetailsResponse
-    account: AccountResponse
-    cards: list[CardResponse]
-    transactions: list[TransactionResponse]
+class CreateAccountRequest(BaseModel):
+    user_id: int
+    balance: float
+    currency: str
+
+class UpdateAccountRequest(BaseModel):
+    balance: Optional[float] = None
+    currency: Optional[str] = None

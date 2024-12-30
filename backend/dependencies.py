@@ -1,7 +1,7 @@
 import os
 from typing import Annotated
 
-from accounts.account_repository import AccountRepository
+from accounts.repositories import AccountRepository
 from cards.repositories import CardRepository
 from cards.services import CardService
 from dotenv import load_dotenv

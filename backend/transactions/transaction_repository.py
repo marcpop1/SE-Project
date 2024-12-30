@@ -19,7 +19,6 @@ class TransactionRepository:
         account_from = aliased(Account)
         account_to = aliased(Account)
 
-        # Query with aliases
         transactions = (
             self.db.query(Transaction)
             .join(account_from, Transaction.account_from_id == account_from.id)

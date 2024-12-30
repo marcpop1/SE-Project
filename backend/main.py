@@ -16,6 +16,7 @@ from accounts.models import Account
 from cards.models import Card
 from transactions.models import Transaction
 from auth import auth
+from accounts import routes as account_routes
 from cards import routes as card_routes
 from transactions import routes as transaction_routes
 from database import engine
@@ -37,6 +38,7 @@ app.add_middleware(
 )
 
 app.include_router(auth.router)
+app.include_router(account_routes.router)
 app.include_router(card_routes.router)
 app.include_router(transaction_routes.router)
 

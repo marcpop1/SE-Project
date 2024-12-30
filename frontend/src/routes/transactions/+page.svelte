@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { goto } from "$app/navigation";
     import type { Transaction } from "$lib/models/Transaction";
     import { onMount } from "svelte";
 
@@ -15,6 +16,10 @@
             console.log(transactions);
         }
     });
+
+    function redirectToCreateTransaction() {
+        goto('/transactions/create');
+    }
 </script>
 
 <div class="overflow-x-auto">
@@ -61,4 +66,9 @@
         <tfoot>
         </tfoot>
     </table>
+
+    <div class="text-center">
+        <button class="btn btn-wide btn-primary" on:click={redirectToCreateTransaction}>Create New Transaction</button>
+    </div>
 </div>
+

@@ -25,11 +25,9 @@ class CreateTransactionRequest(BaseModel):
     account_to_username: str
     amount: float
     currency: str
-    created_at: Optional[datetime] = None
 
 class UpdateTransactionRequest(BaseModel):
     account_from_id: Optional[int] = None
     account_to_id: Optional[int] = None
     amount: Optional[float] = None
     currency: Optional[str] = None
-    created_at: Optional[datetime] = None

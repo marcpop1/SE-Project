@@ -15,6 +15,9 @@ class TransactionService():
         if not account_from:
             raise ValueError("Account not found for the given user_id")
         
+        if account_from.balance < transaction.amount:
+            raise ValueError("Not enough money")
+        
         account_to = self.account_repository.get_by_username(transaction.account_to_username)
         new_transaction = Transaction(
             account_from_id = account_from.id,

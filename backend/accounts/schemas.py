@@ -14,3 +14,12 @@ class AccountResponse(BaseModel):
     class Config:
         orm_mode = True
         from_attributes = True
+
+class CreateAccountRequest(BaseModel):
+    user_id: int
+    balance: float
+    currency: str
+
+class UpdateAccountRequest(BaseModel):
+    balance: Optional[float] = None
+    currency: Optional[str] = None

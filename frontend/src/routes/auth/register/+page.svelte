@@ -1,10 +1,13 @@
 <script lang="ts">
+    import { goto } from "$app/navigation";
+
+  let name: string = ""
   let username: string = "";
   let password: string = "";
   let confirmPassword: string = "";
   let isPasswordMatch: boolean = true;
   let noMatchErrorMessage: string = "Passwords do not match";
-  
+
   $: isPasswordMatch = password === confirmPassword ? true : false;
 
   async function handleSubmit(event: any) {
@@ -19,12 +22,13 @@
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username: username, password: password }),
+      body: JSON.stringify({ name: name, username: username, password: password }),
     });
 
     if (response.ok) {
       const data = await response.json();
       console.log("Login successful:", data);
+      await goto("auth/login");
     } else {
       console.error("Login failed:", response.statusText);
     }
@@ -35,6 +39,23 @@
   <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
     <form class="space-y-6" method="POST" on:submit={handleSubmit}>
       <div>
+        <label for="name" class="block text-sm/6 font-medium text-gray-900"
+          >Name</label
+        >
+        <div class="mt-2">
+          <input
+            type="text"
+            name="name"
+            id="name"
+            autocomplete="name"
+            bind:value={name}
+            required
+            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+          />
+        </div>
+      </div>
+
+      <div>
         <label for="username" class="block text-sm/6 font-medium text-gray-900"
           >Username</label
         >
@@ -42,7 +63,7 @@
           <input
             type="username"
             name="username"
-            id="emaiusernamel"
+            id="username"
             autocomplete="username"
             bind:value={username}
             required
@@ -78,9 +99,11 @@
             >Confirm password</label
           >
           {#if isPasswordMatch === false}
-          <div class="text-sm">
-            <span class="font-semibold text-red-600 hover:text-red-500">{noMatchErrorMessage}</span>
-          </div>
+            <div class="text-sm">
+              <span class="font-semibold text-red-600 hover:text-red-500"
+                >{noMatchErrorMessage}</span
+              >
+            </div>
           {/if}
         </div>
         <div class="mt-2">
@@ -105,8 +128,12 @@
       </div>
 
       <p class="text-sm font-light text-gray-500 dark:text-gray-400">
-        Already have an account? <a href="/auth/login" class="font-medium text-indigo-600 hover:underline dark:text-primary-500">Sign in</a>
-    </p>
+        Already have an account? <a
+          href="/auth/login"
+          class="font-medium text-indigo-600 hover:underline dark:text-primary-500"
+          >Sign in</a
+        >
+      </p>
     </form>
   </div>
 </div>

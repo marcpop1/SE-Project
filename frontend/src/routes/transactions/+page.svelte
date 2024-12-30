@@ -18,57 +18,71 @@
     });
 
     function redirectToCreateTransaction() {
-        goto('/transactions/create');
+        goto("/transactions/create");
     }
 </script>
 
-<div class="overflow-x-auto">
-    <table class="table">
-        <!-- head -->
-        <thead>
-            <tr>
-                <th>
-                    <label>
-                        <input type="checkbox" class="checkbox" />
-                    </label>
-                </th>
-                <th>Name</th>
-                <th>Amount</th>
-                <th>Currency</th>
-                <th>Date</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            {#each transactions as transaction}
+<div class="h-max">
+    <div class="overflow-x-auto transaction-list">
+        <table class="table">
+            <!-- head -->
+            <thead>
                 <tr>
                     <th>
                         <label>
                             <input type="checkbox" class="checkbox" />
                         </label>
                     </th>
-                    <td>
-                        <div class="flex items-center gap-3">
-                            <div>
-                                <div class="font-bold">{transaction.accountTo?.user.username}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td>{transaction.amount}</td>
-                    <td>{transaction.currency}</td>
-                    <td>{transaction.createdAt}</td>
-                    <th>
-                        <button class="btn btn-ghost btn-xs">details</button>
-                    </th>
+                    <th>Name</th>
+                    <th>Amount</th>
+                    <th>Currency</th>
+                    <th>Date</th>
+                    <th></th>
                 </tr>
-            {/each}
-        </tbody>
-        <tfoot>
-        </tfoot>
-    </table>
-
-    <div class="text-center">
-        <button class="btn btn-wide btn-primary" on:click={redirectToCreateTransaction}>Create New Transaction</button>
+            </thead>
+            <tbody>
+                {#each transactions as transaction}
+                    <tr>
+                        <th>
+                            <label>
+                                <input type="checkbox" class="checkbox" />
+                            </label>
+                        </th>
+                        <td>
+                            <div class="flex items-center gap-3">
+                                <div>
+                                    <div class="font-bold">
+                                        {transaction.accountTo?.user.name}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{transaction.amount}</td>
+                        <td>{transaction.currency}</td>
+                        <td>{transaction.createdAt}</td>
+                        <th>
+                            <button class="btn btn-ghost btn-xs">details</button
+                            >
+                        </th>
+                    </tr>
+                {/each}
+            </tbody>
+            <tfoot> </tfoot>
+        </table>
+    </div>
+    <div>
+        <div class="text-center mt-16">
+            <button
+                class="btn btn-wide btn-primary"
+                on:click={redirectToCreateTransaction}
+                >Create New Transaction</button
+            >
+        </div>
     </div>
 </div>
 
+<style>
+    .transaction-list {
+        height: 40rem;
+    }
+</style>

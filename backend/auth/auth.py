@@ -25,6 +25,7 @@ oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/token")
 async def create_user(db: db_dependency,
                       create_user_request: CreateUserRequest):
     create_user_model = User(
+        name=create_user_request.name,
         username=create_user_request.username,
         hashed_password=bcrypt_context.hash(create_user_request.password)
     )
@@ -40,7 +41,7 @@ async def login(response: Response, form_data: Annotated[OAuth2PasswordRequestFo
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail='Could not validate user.')
-    token = create_access_token(user.username, user.id, timedelta(minutes=20))
+    token = create_access_token(user, timedelta(minutes=20))
     response.set_cookie(key="access_token", value=token, httponly=True, secure=True)
     return {'access_token': token, 'token_type': 'bearer'}
 
@@ -51,7 +52,7 @@ async def logout(response: Response):
     return {"message": "Successfully logged out"}
 
 
-def authenticate_user(username: str, password: str, db):
+def authenticate_user(username: str, password: str, db) -> User:
     user = db.query(User).filter(User.username == username).first()
     if not user:
         return False
@@ -59,9 +60,9 @@ def authenticate_user(username: str, password: str, db):
         return False
     return user
 
-
-def create_access_token(username: str, user_id: int, expire_timedelta: timedelta):
-    encode = {'sub': username, 'id': user_id}
+ 
+def create_access_token(user: User, expire_timedelta: timedelta):
+    encode = {'id': user.id, 'sub': user.username, 'name': user.name, 'role': user.role.value}
     expiry = datetime.utcnow() + expire_timedelta
     encode.update({'exp': expiry})
 

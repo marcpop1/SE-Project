@@ -18,19 +18,19 @@ class AccountRepository:
         accounts = self.db.query(Account).filter(Account.user_id == user_id).all()
         return [AccountResponse.model_validate(account) for account in accounts]
 
-    def get_by_user_id(self, user_id: int) -> Optional[AccountResponse]:
+    def get_by_user_id(self, user_id: int) -> Optional[Account]:
         account = self.db.query(Account).filter(Account.user_id == user_id).first()
         if account:
-            return AccountResponse.model_validate(account)
+            return account
         return None
     
-    def get_by_username(self, username: str) -> Optional[AccountResponse]:
+    def get_by_username(self, username: str) -> Optional[Account]:
         account = (self.db.query(Account)
                    .join(User, Account.user_id == User.id)
                    .filter(User.username == username)
                    .first())
         if account:
-            return AccountResponse.model_validate(account)
+            return account
         return None
 
     def get_by_id(self, account_id: int) -> Optional[AccountResponse]:

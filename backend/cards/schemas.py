@@ -23,6 +23,11 @@ class CreateCardRequest(BaseModel):
     is_primary: bool
 
 
+class UpdateCardRequest(BaseModel):
+    card_currency: str
+    is_primary: bool
+
+
 class CardResponse(BaseModel):
     id: int
     account_id: int

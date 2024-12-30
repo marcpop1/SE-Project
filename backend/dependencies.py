@@ -1,6 +1,9 @@
 import os
 from typing import Annotated
 
+from accounts.repositories import AccountRepository
+from cards.repositories import CardRepository
+from cards.services import CardService
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException
 from jose import jwt, JWTError
@@ -73,3 +76,25 @@ async def get_admin_user(request: Request):
 db_dependency = Annotated[Session, Depends(get_db)]
 user_dependency = Annotated[UserDetailsResponse, Depends(get_current_user)]
 admin_dependency = Annotated[UserDetailsResponse, Depends(get_admin_user)]
+
+# repositories
+def get_card_repository(db: Session = Depends(get_db)) -> CardRepository:
+    return CardRepository(session=db)
+
+
+def get_account_repository(db: Session = Depends(get_db)) -> AccountRepository:
+    return AccountRepository(session=db)
+
+
+# services
+def get_card_service(
+        card_repository: CardRepository = Depends(get_card_repository),
+        account_repository: AccountRepository = Depends(get_account_repository)
+) -> CardService:
+    return CardService(card_repository, account_repository)
+
+
+# renamed dependencies
+
+DbSession = Annotated[Session, Depends(get_db)]
+LoggedUser = Annotated[UserDetailsResponse, Depends(get_current_user)]

@@ -1,7 +1,6 @@
 from sqlalchemy import Column, DateTime, Enum, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
-from transactions.transaction_status import TransactionStatus
-from transactions.transaction_type import TransactionType
+from shared.enums.transaction.transaction_type import TransactionType
 from database import Base
 from datetime import datetime
 

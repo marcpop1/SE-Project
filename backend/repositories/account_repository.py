@@ -1,8 +1,8 @@
 from typing import List, Optional
 from sqlalchemy.orm import Session
-from accounts.models import Account
-from accounts.schemas import AccountResponse
-from auth.models import User
+from models.account import Account
+from schemas.account_schemas import AccountResponse
+from models.user import User
 
 class AccountRepository:
     def __init__(self, db: Session):

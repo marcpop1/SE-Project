@@ -1,12 +1,12 @@
 from sqlalchemy import update
 from sqlalchemy.orm import Session
 
-from accounts.models import Account
-from cards.models import Card
-from shared.repositories import BaseRepository
+from models.account import Account
+from models.card import Card
+from repositories.repository_base import RepositoryBase
 
 
-class CardRepository(BaseRepository[Card]):
+class CardRepository(RepositoryBase[Card]):
 
     def __init__(self, session: Session):
         super().__init__(Card, session)

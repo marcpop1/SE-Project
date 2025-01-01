@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import Annotated, List
-from accounts.account_repository import AccountRepository
-from transactions.transaction_service import TransactionService
-from transactions.transaction_repository import TransactionRepository
-from .schemas import AddMoneyRequest, TransactionResponse, CreateTransactionRequest, UpdateTransactionRequest
+from repositories.account_repository import AccountRepository
+from services.transaction_service import TransactionService
+from repositories.transaction_repository import TransactionRepository
+from schemas.transaction_schemas import AddMoneyRequest, TransactionResponse, CreateTransactionRequest, UpdateTransactionRequest
 from dependencies import db_dependency, user_dependency
 
 router = APIRouter(

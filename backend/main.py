@@ -1,24 +1,23 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import desc
-from accounts.schemas import AccountResponse
-from models import AccountOverviewResponse
-from cards.schemas import CardResponse
-from transactions.schemas import TransactionResponse
+from schemas.account_schemas import AccountResponse
+from schemas.account_overview_response import AccountOverviewResponse
+from controllers import user_controller
+from schemas.card_schemas import CardResponse
+from schemas.transaction_schemas import TransactionResponse
 from database import engine
-from auth import auth
 from starlette import status
-import auth.models as auth_models
-import accounts.models as account_models
-import cards.models as card_models
-import transactions.models as transaction_models
-from accounts.models import Account
-from cards.models import Card
-from transactions.models import Transaction
-from auth import auth
-from accounts import routes as account_routes
-from cards import routes as card_routes
-from transactions import routes as transaction_routes
+import models.user as user_model
+import models.account as account_model
+import models.card as card_model
+import models.transaction as transaction_model
+from models.account import Account
+from models.card import Card
+from models.transaction import Transaction
+from controllers import account_controller as account_routes
+from controllers import card_controller as card_routes
+from controllers import transaction_controller as transaction_routes
 from database import engine
 from dependencies import user_dependency, db_dependency
 
@@ -37,15 +36,15 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
-app.include_router(auth.router)
+app.include_router(user_controller.router)
 app.include_router(account_routes.router)
 app.include_router(card_routes.router)
 app.include_router(transaction_routes.router)
 
-auth_models.Base.metadata.create_all(bind=engine)
-account_models.Base.metadata.create_all(bind=engine)
-card_models.Base.metadata.create_all(bind=engine)
-transaction_models.Base.metadata.create_all(bind=engine)
+user_model.Base.metadata.create_all(bind=engine)
+account_model.Base.metadata.create_all(bind=engine)
+card_model.Base.metadata.create_all(bind=engine)
+transaction_model.Base.metadata.create_all(bind=engine)
 
 @app.get("/", status_code=status.HTTP_200_OK)
 async def get_user_account(user: user_dependency, db: db_dependency):

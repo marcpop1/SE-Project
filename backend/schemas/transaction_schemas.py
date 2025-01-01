@@ -2,8 +2,8 @@ from typing import Optional
 from pydantic import BaseModel
 from datetime import datetime
 
-from accounts.schemas import AccountResponse
-from transactions.transaction_type import TransactionType
+from schemas.account_schemas import AccountResponse
+from shared.enums.transaction.transaction_type import TransactionType
 
 class TransactionResponse(BaseModel):
     id: int

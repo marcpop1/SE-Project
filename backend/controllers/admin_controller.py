@@ -22,8 +22,8 @@ class AdminController:
     def list_all_users(self):
         pass
     
-    @router.get('/transactions')
-    def list_transactions(self, user_id: Optional[int] = Query(None)):
+    @router.get('/transactions/{user_id}')
+    def list_transactions(self, user_id: int):
         pass
     
     @router.put('/transactions/{transaction_id}/revert')

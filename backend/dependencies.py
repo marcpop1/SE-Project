@@ -3,6 +3,7 @@ from typing import Annotated
 
 from repositories.account_repository import AccountRepository
 from repositories.card_repository import CardRepository
+from repositories.transaction_repository import TransactionRepository
 from services.account_service import AccountService
 from services.card_service import CardService
 from dotenv import load_dotenv
@@ -12,6 +13,7 @@ from sqlalchemy.orm import Session
 from starlette import status
 
 from schemas.user_schemas import UserDetailsResponse
+from services.transaction_service import TransactionService
 from shared.enums.user.user_role import UserRole
 from database import SessionLocal
 from fastapi import Request
@@ -87,6 +89,9 @@ def get_account_repository(db: Session = Depends(get_db)) -> AccountRepository:
     return AccountRepository(session=db)
 
 
+def get_transaction_repository(db: Session = Depends(get_db)) -> TransactionRepository:
+    return TransactionRepository(session=db)
+
 # services
 def get_card_service(
         card_repository: CardRepository = Depends(get_card_repository),
@@ -98,6 +103,12 @@ def get_account_service(
     account_repository: AccountRepository = Depends(get_account_repository)
 ) -> AccountService:
     return AccountService(account_repository)
+
+def get_transaction_service(
+    account_repository: AccountRepository = Depends(get_account_repository),
+    transaction_repository: TransactionRepository = Depends(get_transaction_repository)
+) -> TransactionService:
+    return TransactionService(account_repository, transaction_repository)
 
 # renamed dependencies
 

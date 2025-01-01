@@ -14,18 +14,26 @@ class AccountService:
         return AccountResponse.model_validate(created_account)
     
     def get_all_for_user(self, user: UserDetailsResponse) -> list[AccountResponse]:
+        """Returns all accounts for the specifed user"""
+        
         accounts = self.account_repository.find_all_by_user_id(user_id=user.id) 
         return [AccountResponse.model_validate(account) for account in accounts]
     
     def get_account_by_id(self, account_id: int) -> Account:
+        """Returns the account with the coresponding id, HTTPException is raised if no account found"""
+        
         account = self.account_repository.find_by_id(id=account_id)
         return account
     
     def get_account_by_user_id(self, user: UserDetailsResponse) -> Account:
+        """Returns the first account for the specified user.id, HTTPException is raised if no account found"""
+        
         account = self.account_repository.find_one_by_user_id(user_id=user.id)
         return account
     
     def get_account_by_username(self, username: str) -> Account:
+        """Returns the first account for the specified user.username, HTTPException is raised if no account found"""
+        
         account = self.account_repository.find_by_username(username)
         return account
     

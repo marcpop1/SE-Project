@@ -30,7 +30,6 @@ class CardController:
     @router.put("/{card_id}", response_model=CardDetailResponse)
     def update_specified_card(self, card_id: int, payload: UpdateCardRequest):
         updated_card = self.card_service.update_card(self.user, card_id, data=payload)
-        print(updated_card)
         return CardDetailResponse.model_validate(updated_card)
 
     @router.delete("/{card_id}", status_code=204)

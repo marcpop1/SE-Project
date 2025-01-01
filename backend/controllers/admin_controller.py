@@ -1,11 +1,12 @@
-from typing import Optional
 from fastapi_restful.cbv import cbv
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends
 
-from dependencies import get_transaction_service, get_user_service
+from dependencies import get_current_user, get_transaction_service, get_user_service
 from schemas.user_schemas import UserDetailsResponse
 from services.transaction_service import TransactionService
 from services.user_service import UserService
+from shared.decorators.authorize import authorize
+from shared.enums.user.user_role import UserRole
 
 router = APIRouter(
     prefix='/admin',
@@ -17,6 +18,12 @@ router = APIRouter(
 class AdminController:
     user_service: UserService = Depends(get_user_service)
     transaction_service: TransactionService = Depends(get_transaction_service)
+    user: UserDetailsResponse = Depends(get_current_user)
+    
+    @router.get('/')
+    @authorize(roles=[UserRole.ADMIN, UserRole.USER])
+    def test_authorize(self):
+        return {'message': 'HelloWorld'}
     
     @router.get('/users', response_model=list[UserDetailsResponse])
     def list_all_users(self):

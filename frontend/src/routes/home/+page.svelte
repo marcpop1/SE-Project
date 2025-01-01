@@ -25,7 +25,7 @@
         try {
             const response = await fetch("http://localhost:8000/auth/logout", {
                 method: "POST",
-                credentials: "include"
+                credentials: "include",
             });
 
             if (!response.ok) {
@@ -52,10 +52,10 @@
                 currency={accountOverview?.account.currency}
             />
             <br />
-            <CardsCard cards={accountOverview?.cards}/>
+            <CardsCard cards={accountOverview?.cards} />
         </div>
         <div>
-            <TransactionsCard transactions={accountOverview?.transactions}/>
+            <TransactionsCard transactions={accountOverview?.transactions} />
         </div>
     </div>
 </div>

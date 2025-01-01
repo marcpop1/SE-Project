@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from datetime import datetime
 
 from accounts.schemas import AccountResponse
+from transactions.transaction_type import TransactionType
 
 class TransactionResponse(BaseModel):
     id: int
@@ -13,6 +14,8 @@ class TransactionResponse(BaseModel):
     created_at: datetime
     account_from: Optional[AccountResponse] = None
     account_to: Optional[AccountResponse] = None
+    status: int
+    type: TransactionType
     class Config:
         from_attributes = True
         alias_generator = lambda string: ''.join(
@@ -25,6 +28,9 @@ class CreateTransactionRequest(BaseModel):
     account_to_username: str
     amount: float
     currency: str
+
+class AddMoneyRequest(BaseModel):
+    amount: float
 
 class UpdateTransactionRequest(BaseModel):
     account_from_id: Optional[int] = None

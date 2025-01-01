@@ -1,5 +1,7 @@
-from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy import Column, DateTime, Enum, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+from transactions.transaction_status import TransactionStatus
+from transactions.transaction_type import TransactionType
 from database import Base
 from datetime import datetime
 
@@ -10,6 +12,8 @@ class Transaction(Base):
     account_to_id = Column(Integer, ForeignKey('accounts.id'), index=True)
     amount = Column(Float)
     currency = Column(String)
+    type = Column(Enum(TransactionType), default=TransactionType.TRANSFER)
+    status = Column(Integer)
     created_at = Column(DateTime, default=datetime.now)
     
     account_from = relationship("Account", foreign_keys=[account_from_id], back_populates="transactions_from")

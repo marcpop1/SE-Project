@@ -1,9 +1,10 @@
 from accounts.account_repository import AccountRepository
 from auth.schemas import UserDetailsResponse
-from accounts.models import Account
+from transactions.transaction_status import TransactionStatus
+from transactions.transaction_type import TransactionType
 from transactions.transaction_repository import TransactionRepository
 from transactions.models import Transaction
-from .schemas import CreateTransactionRequest
+from .schemas import AddMoneyRequest, CreateTransactionRequest
 
 
 class TransactionService():
@@ -31,7 +32,29 @@ class TransactionService():
             account_from_id = account_from.id,
             account_to_id = account_to.id,
             amount = transaction.amount,
-            currency = transaction.currency
+            currency = transaction.currency,
+            status = TransactionStatus.COMPLETED,
+            type = TransactionType.TRANSFER
+        )
+
+        return self.transaction_repository.add(new_transaction)
+    
+    def add_money(self, user: UserDetailsResponse, transaction: AddMoneyRequest):
+        account = self.account_repository.get_by_user_id(user.id)
+        if not account:
+            raise ValueError("Account not found for the given user_id")
+        
+        account.balance += transaction.amount
+
+        self.account_repository.update(account)
+
+        new_transaction = Transaction(
+            account_from_id = account.id,
+            account_to_id = account.id,
+            amount = transaction.amount,
+            currency = "RON",
+            status = TransactionStatus.COMPLETED,
+            type = TransactionType.TOP_UP
         )
 
         return self.transaction_repository.add(new_transaction)

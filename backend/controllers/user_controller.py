@@ -47,7 +47,7 @@ class AuthenticationController:
             secure=True
         )
         
-        return {'access_token': token, 'token_type': 'bearer'}
+        return {COOKIE_TOKEN_KEY: token, 'token_type': 'bearer'}
         
     @router.post('/logout', status_code=200)
     async def logout(self, response: Response):

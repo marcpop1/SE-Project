@@ -1,6 +1,7 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
     import type { Transaction } from "$lib/models/Transaction";
+    import { getTransactionStatusString } from "$lib/models/TransactionStatus";
     import { onMount } from "svelte";
 
     let transactions: Transaction[];
@@ -36,6 +37,8 @@
                     <th>Name</th>
                     <th>Amount</th>
                     <th>Currency</th>
+                    <th>Type</th>
+                    <th>Status</th>
                     <th>Date</th>
                     <th></th>
                 </tr>
@@ -59,11 +62,9 @@
                         </td>
                         <td>{transaction.amount}</td>
                         <td>{transaction.currency}</td>
+                        <td>{transaction.type}</td>
+                        <td>{getTransactionStatusString(transaction.status)}</td>
                         <td>{transaction.createdAt}</td>
-                        <th>
-                            <button class="btn btn-ghost btn-xs">details</button
-                            >
-                        </th>
                     </tr>
                 {/each}
             </tbody>

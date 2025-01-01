@@ -3,7 +3,7 @@ from typing import Annotated, List
 from accounts.account_repository import AccountRepository
 from transactions.transaction_service import TransactionService
 from transactions.transaction_repository import TransactionRepository
-from .schemas import TransactionResponse, CreateTransactionRequest, UpdateTransactionRequest
+from .schemas import AddMoneyRequest, TransactionResponse, CreateTransactionRequest, UpdateTransactionRequest
 from dependencies import db_dependency, user_dependency
 
 router = APIRouter(
@@ -29,6 +29,10 @@ transaction_service_dependency = Annotated[TransactionService, Depends(get_trans
 @router.post("/", response_model=TransactionResponse, status_code=status.HTTP_201_CREATED)
 def create(transaction: CreateTransactionRequest, user: user_dependency, transaction_service: transaction_service_dependency):
     return transaction_service.create_transaction(user, transaction)
+
+@router.post("/add-money/", response_model=TransactionResponse, status_code=status.HTTP_201_CREATED)
+def add_money(transaction: AddMoneyRequest, user: user_dependency, transaction_service: transaction_service_dependency):
+    return transaction_service.add_money(user, transaction)
 
 @router.get("/", response_model=List[TransactionResponse])
 def get_all(user: user_dependency, repository: repository_dependency):

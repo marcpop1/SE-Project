@@ -28,6 +28,7 @@ class AuthenticationService:
         jwt_payload = {
             'id': user.id,
             'sub': user.username,
+            'name': user.name,
             'role': user.role.value,
             'exp': expires_at
         }

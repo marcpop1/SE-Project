@@ -81,6 +81,13 @@ class TransactionService:
     
     def revert_transaction(self, transaction_id: int) -> TransactionResponse:
         transaction_to_revert = self.transaction_repository.find_by_id(id=transaction_id)
+   
+        if transaction_to_revert.status == TransactionStatus.REVERTED:
+            raise HTTPException(
+                status_code=403,
+                detail=f'Transaction {transaction_id} is already reverted'
+            )
+   
         transfered_amount = transaction_to_revert.amount
         
         afrom = transaction_to_revert.account_from
@@ -89,11 +96,13 @@ class TransactionService:
         afrom.balance += transfered_amount
         ato -= transfered_amount
         
-        self.account_repository.update(ato)
-        self.account_repository.update(afrom)
+        self.account_repository.update(entity=ato)
+        self.account_repository.update(entity=afrom)
         
-        self.transaction_repository.delete(entity=transaction_to_revert)
+        transaction_to_revert.status = TransactionStatus.REVERTED 
+        updated_transaction = self.transaction_repository.update(entity=transaction_to_revert)    
         
+        return TransactionResponse.model_validate(updated_transaction)
         
         
 

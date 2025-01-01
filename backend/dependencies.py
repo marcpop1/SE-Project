@@ -16,6 +16,7 @@ from starlette import status
 
 from schemas.user_schemas import UserDetailsResponse
 from services.transaction_service import TransactionService
+from services.user_service import UserService
 from shared.enums.user.user_role import UserRole
 from database import SessionLocal
 from fastapi import Request
@@ -119,6 +120,11 @@ def get_auth_service(
     user_repository: UserRepository = Depends(get_user_repository) 
 ) -> AuthenticationService:
     return AuthenticationService(user_repository)
+
+def get_user_service(
+    user_repository: UserRepository = Depends(get_user_repository)
+) -> UserService:
+    return UserService(user_repository)
 
 # renamed dependencies
 

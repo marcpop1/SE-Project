@@ -1,8 +1,9 @@
 import os
 from typing import Annotated
 
-from repositories.account_repository_from_base import AccountRepository
+from repositories.account_repository import AccountRepository
 from repositories.card_repository import CardRepository
+from services.account_service import AccountService
 from services.card_service import CardService
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException
@@ -93,6 +94,10 @@ def get_card_service(
 ) -> CardService:
     return CardService(card_repository, account_repository)
 
+def get_account_service(
+    account_repository: AccountRepository = Depends(get_account_repository)
+) -> AccountService:
+    return AccountService(account_repository)
 
 # renamed dependencies
 

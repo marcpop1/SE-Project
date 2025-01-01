@@ -4,7 +4,7 @@ import datetime
 
 from fastapi import HTTPException
 
-from repositories.account_repository_from_base import AccountRepository
+from repositories.account_repository import AccountRepository
 from schemas.user_schemas import UserDetailsResponse
 from models.card import Card
 from repositories.card_repository import CardRepository

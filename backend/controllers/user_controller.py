@@ -1,18 +1,10 @@
-from datetime import datetime, timedelta
 from typing import Annotated
-
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, Response
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from jose import jwt
 from passlib.context import CryptContext
-from starlette import status
-
 from dependencies import SECRET_KEY, ALGORITHM, get_auth_service
-from models.user import User
 from schemas.user_schemas import CreateUserRequest, Token
-
 from fastapi_restful.cbv import cbv
-
 from services.auth_service import AuthenticationService
 
 router = APIRouter(

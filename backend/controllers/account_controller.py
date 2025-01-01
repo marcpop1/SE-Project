@@ -1,9 +1,7 @@
 from fastapi import APIRouter, Depends
 from schemas.account_schemas import AccountResponse, CreateAccountRequest, UpdateAccountRequest
-from dependencies import get_account_service, get_current_user, get_db, user_dependency
-
+from dependencies import get_account_service, get_current_user
 from fastapi_restful.cbv import cbv
-
 from schemas.user_schemas import UserDetailsResponse
 from services.account_service import AccountService
 

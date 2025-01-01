@@ -1,15 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from typing import Annotated, List
-from models.transaction import Transaction
-from repositories.account_repository import AccountRepository
+from fastapi import APIRouter, Depends
 from schemas.user_schemas import UserDetailsResponse
 from services.account_service import AccountService
 from services.transaction_service import TransactionService
-from repositories.transaction_repository import TransactionRepository
 from schemas.transaction_schemas import AddMoneyRequest, TransactionResponse, CreateTransactionRequest, UpdateTransactionRequest
 from dependencies import get_account_service, get_current_user, get_transaction_service
 from fastapi_restful.cbv import cbv
-
 
 router = APIRouter(
     prefix='/transactions',

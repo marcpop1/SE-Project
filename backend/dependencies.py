@@ -4,7 +4,9 @@ from typing import Annotated
 from repositories.account_repository import AccountRepository
 from repositories.card_repository import CardRepository
 from repositories.transaction_repository import TransactionRepository
+from repositories.user_repository import UserRepository
 from services.account_service import AccountService
+from services.auth_service import AuthenticationService
 from services.card_service import CardService
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException
@@ -92,6 +94,9 @@ def get_account_repository(db: Session = Depends(get_db)) -> AccountRepository:
 def get_transaction_repository(db: Session = Depends(get_db)) -> TransactionRepository:
     return TransactionRepository(session=db)
 
+def get_user_repository(db: Session = Depends(get_db)) -> UserRepository:
+    return UserRepository(session=db)
+
 # services
 def get_card_service(
         card_repository: CardRepository = Depends(get_card_repository),
@@ -109,6 +114,11 @@ def get_transaction_service(
     transaction_repository: TransactionRepository = Depends(get_transaction_repository)
 ) -> TransactionService:
     return TransactionService(account_repository, transaction_repository)
+
+def get_auth_service(
+    user_repository: UserRepository = Depends(get_user_repository) 
+) -> AuthenticationService:
+    return AuthenticationService(user_repository)
 
 # renamed dependencies
 

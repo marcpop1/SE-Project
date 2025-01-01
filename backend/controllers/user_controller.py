@@ -7,9 +7,13 @@ from jose import jwt
 from passlib.context import CryptContext
 from starlette import status
 
-from dependencies import db_dependency, SECRET_KEY, ALGORITHM
+from dependencies import SECRET_KEY, ALGORITHM, get_auth_service
 from models.user import User
 from schemas.user_schemas import CreateUserRequest, Token
+
+from fastapi_restful.cbv import cbv
+
+from services.auth_service import AuthenticationService
 
 router = APIRouter(
     prefix='/auth',
@@ -17,53 +21,43 @@ router = APIRouter(
 )
 
 
+COOKIE_TOKEN_KEY='access_token'
+
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/token")
 
-
-@router.post('/register', status_code=status.HTTP_201_CREATED)
-async def create_user(db: db_dependency,
-                      create_user_request: CreateUserRequest):
-    create_user_model = User(
-        name=create_user_request.name,
-        username=create_user_request.username,
-        hashed_password=bcrypt_context.hash(create_user_request.password)
-    )
-
-    db.add(create_user_model)
-    db.commit()
-
-
-@router.post("/login", response_model=Token)
-async def login(response: Response, form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-                db: db_dependency):
-    user = authenticate_user(form_data.username, form_data.password, db)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail='Could not validate user.')
-    token = create_access_token(user, timedelta(minutes=20))
-    response.set_cookie(key="access_token", value=token, httponly=True, secure=True)
-    return {'access_token': token, 'token_type': 'bearer'}
-
-
-@router.post('/logout', status_code=status.HTTP_200_OK)
-async def logout(response: Response):
-    response.delete_cookie(key="access_token")
-    return {"message": "Successfully logged out"}
-
-
-def authenticate_user(username: str, password: str, db) -> User:
-    user = db.query(User).filter(User.username == username).first()
-    if not user:
-        return False
-    if not bcrypt_context.verify(password, user.hashed_password):
-        return False
-    return user
-
- 
-def create_access_token(user: User, expire_timedelta: timedelta):
-    encode = {'id': user.id, 'sub': user.username, 'name': user.name, 'role': user.role.value}
-    expiry = datetime.utcnow() + expire_timedelta
-    encode.update({'exp': expiry})
-
-    return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
+@cbv(router)
+class AuthenticationController:
+    authentication_service: AuthenticationService = Depends(get_auth_service)
+    
+    @router.post("/register", status_code=201)
+    async def register(self, payload: CreateUserRequest):
+        self.authentication_service.register_user(data=payload, bcrypt=bcrypt_context)
+        
+    @router.post("/login", response_model=Token)
+    async def login(self, response: Response, form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
+        user = self.authentication_service.authenticate(
+            username=form_data.username,
+            password=form_data.password,
+            bcrypt=bcrypt_context
+        )
+        
+        token = self.authentication_service.create_access_token(
+            user=user,
+            key=SECRET_KEY,
+            alg=ALGORITHM,
+        )
+        
+        response.set_cookie(
+            key=COOKIE_TOKEN_KEY,
+            value=token,
+            httponly=True,
+            secure=True
+        )
+        
+        return {'access_token': token, 'token_type': 'bearer'}
+        
+    @router.post('/logout', status_code=200)
+    async def logout(self, response: Response):
+        response.delete_cookie(key=COOKIE_TOKEN_KEY)
+        return {'message': 'Successfully logged out'}

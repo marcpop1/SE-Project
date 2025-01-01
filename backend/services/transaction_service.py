@@ -27,7 +27,6 @@ class TransactionService:
         transactions = self.transaction_repository.find_all_by_user_id(user_id)
         return [serialize_transaction(t, user_id) for t in transactions]
 
-
     def update_transaction(self, transaction_id: int, user: UserDetailsResponse, data: UpdateTransactionRequest) -> TransactionResponse:
         transaction_to_update = self.transaction_repository.find_one_by_user_id(transaction_id, user_id=user.id)
         
@@ -103,6 +102,3 @@ class TransactionService:
         updated_transaction = self.transaction_repository.update(entity=transaction_to_revert)    
         
         return TransactionResponse.model_validate(updated_transaction)
-        
-        
-

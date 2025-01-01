@@ -7,7 +7,7 @@ class UserService:
     def __init__(self, user_repository: UserRepository):
         self.user_repository = user_repository
         
-    def get_all_users(self) -> UserDetailsResponse:
+    def get_all_users(self) -> list[UserDetailsResponse]:
         users = self.user_repository.find_all()
         return [UserDetailsResponse.model_validate(user) for user in users]
     

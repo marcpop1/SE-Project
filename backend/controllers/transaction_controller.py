@@ -26,7 +26,7 @@ class TransactionController:
     
     @router.get("/", response_model=list[TransactionResponse])
     def list_all_for_logged_user(self):
-        return self.transaction_service.retrieve_all_for_user(user=self.user)
+        return self.transaction_service.retrieve_all_for_user(user_id=self.user.id)
     
     @router.get('/{transaction_id}', response_model=TransactionResponse)
     def get_by_id(self, transaction_id: int):

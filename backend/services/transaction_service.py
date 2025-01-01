@@ -23,9 +23,9 @@ class TransactionService:
         transaction = self.transaction_repository.find_by_id(id=transaction_id)
         return serialize_transaction(transaction, user.id)
     
-    def retrieve_all_for_user(self, user: UserDetailsResponse) -> list[TransactionResponse]:
-        transactions = self.transaction_repository.find_all_by_user_id(user_id=user.id)
-        return [serialize_transaction(t, user.id) for t in transactions]
+    def retrieve_all_for_user(self, user_id: int) -> list[TransactionResponse]:
+        transactions = self.transaction_repository.find_all_by_user_id(user_id)
+        return [serialize_transaction(t, user_id) for t in transactions]
 
 
     def update_transaction(self, transaction_id: int, user: UserDetailsResponse, data: UpdateTransactionRequest) -> TransactionResponse:
@@ -78,4 +78,22 @@ class TransactionService:
 
         transaction = self.transaction_repository.save(entity=new_transaction)
         return TransactionResponse.model_validate(transaction)
+    
+    def revert_transaction(self, transaction_id: int) -> TransactionResponse:
+        transaction_to_revert = self.transaction_repository.find_by_id(id=transaction_id)
+        transfered_amount = transaction_to_revert.amount
+        
+        afrom = transaction_to_revert.account_from
+        ato = transaction_to_revert.account_to
+        
+        afrom.balance += transfered_amount
+        ato -= transfered_amount
+        
+        self.account_repository.update(ato)
+        self.account_repository.update(afrom)
+        
+        self.transaction_repository.delete(entity=transaction_to_revert)
+        
+        
+        
 

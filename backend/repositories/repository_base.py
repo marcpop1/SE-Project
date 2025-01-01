@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 T = TypeVar('T')
 
 
-class BaseRepository(Generic[T]):
+class RepositoryBase(Generic[T]):
 
     def __init__(self, model: Type[T], session: Session):
         self.model = model

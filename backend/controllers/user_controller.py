@@ -8,8 +8,8 @@ from passlib.context import CryptContext
 from starlette import status
 
 from dependencies import db_dependency, SECRET_KEY, ALGORITHM
-from .models import User
-from .schemas import CreateUserRequest, Token
+from models.user import User
+from schemas.user_schemas import CreateUserRequest, Token
 
 router = APIRouter(
     prefix='/auth',

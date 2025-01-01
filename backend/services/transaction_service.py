@@ -1,10 +1,10 @@
-from accounts.account_repository import AccountRepository
-from auth.schemas import UserDetailsResponse
-from transactions.transaction_status import TransactionStatus
-from transactions.transaction_type import TransactionType
-from transactions.transaction_repository import TransactionRepository
-from transactions.models import Transaction
-from .schemas import AddMoneyRequest, CreateTransactionRequest
+from repositories.account_repository import AccountRepository
+from schemas.user_schemas import UserDetailsResponse
+from models.transaction import Transaction
+from shared.enums.transaction.transaction_status import TransactionStatus
+from shared.enums.transaction.transaction_type import TransactionType
+from repositories.transaction_repository import TransactionRepository
+from schemas.transaction_schemas import AddMoneyRequest, CreateTransactionRequest
 
 
 class TransactionService():

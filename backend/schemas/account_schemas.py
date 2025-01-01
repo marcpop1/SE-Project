@@ -1,7 +1,7 @@
 from typing import Optional
 from pydantic import BaseModel
 
-from auth.schemas import UserDetailsResponse
+from schemas.user_schemas import UserDetailsResponse
 
 
 class AccountResponse(BaseModel):

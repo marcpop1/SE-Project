@@ -4,11 +4,11 @@ import datetime
 
 from fastapi import HTTPException
 
-from accounts.repositories import AccountRepository
-from auth.schemas import UserDetailsResponse
-from cards.models import Card
-from cards.repositories import CardRepository
-from cards.schemas import CreateCardRequest, UpdateCardRequest
+from repositories.account_repository_from_base import AccountRepository
+from schemas.user_schemas import UserDetailsResponse
+from models.card import Card
+from repositories.card_repository import CardRepository
+from schemas.card_schemas import CreateCardRequest, UpdateCardRequest
 
 
 def generate_card_number() -> str:

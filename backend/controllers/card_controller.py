@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends
 from fastapi_restful.cbv import cbv
 
-from auth.schemas import UserDetailsResponse
-from cards.schemas import CardDetailResponse, CreateCardRequest, UpdateCardRequest
-from cards.services import CardService
+from schemas.user_schemas import UserDetailsResponse
+from schemas.card_schemas import CardDetailResponse, CreateCardRequest, UpdateCardRequest
+from services.card_service import CardService
 from dependencies import get_card_service, get_current_user
 
 router = APIRouter(

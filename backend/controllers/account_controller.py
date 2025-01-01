@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-from accounts.account_repository import AccountRepository
-from accounts.models import Account
-from accounts.schemas import AccountResponse, CreateAccountRequest, UpdateAccountRequest
+from repositories.account_repository import AccountRepository
+from models.account import Account
+from schemas.account_schemas import AccountResponse, CreateAccountRequest, UpdateAccountRequest
 from dependencies import get_db, user_dependency
 
 router = APIRouter(

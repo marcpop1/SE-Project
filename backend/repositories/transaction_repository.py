@@ -1,9 +1,9 @@
 from typing import List, Optional
 from sqlalchemy import desc
 from sqlalchemy.orm import Session, aliased
-from .models import Transaction
-from accounts.models import Account
-from .schemas import TransactionResponse
+from models.account import Account
+from models.transaction import Transaction
+from schemas.transaction_schemas import TransactionResponse
 
 class TransactionRepository:
     def __init__(self, db: Session):

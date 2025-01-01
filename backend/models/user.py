@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Enum
 from sqlalchemy.orm import relationship
-from auth.user_roles import UserRole
+from shared.enums.user.user_role import UserRole
 from database import Base
 
 

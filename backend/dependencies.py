@@ -1,17 +1,17 @@
 import os
 from typing import Annotated
 
-from accounts.repositories import AccountRepository
-from cards.repositories import CardRepository
-from cards.services import CardService
+from repositories.account_repository_from_base import AccountRepository
+from repositories.card_repository import CardRepository
+from services.card_service import CardService
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException
 from jose import jwt, JWTError
 from sqlalchemy.orm import Session
 from starlette import status
 
-from auth.schemas import UserDetailsResponse
-from auth.user_roles import UserRole
+from schemas.user_schemas import UserDetailsResponse
+from shared.enums.user.user_role import UserRole
 from database import SessionLocal
 from fastapi import Request
 

@@ -1,7 +1,24 @@
 <script lang="ts">
         import type { Transaction } from "$lib/models/Transaction";
+    import { TransactionType } from "$lib/models/TransactionType";
 
     export let transactions: Transaction[] = [];
+
+    function isTopUpTransaction(transaction: Transaction): boolean {
+        if (transaction.type === TransactionType.TOP_UP) {
+            return true;
+        }
+
+        return false;
+    }
+
+    function getTransactionDisplayName(transaction: Transaction): string {
+        if (isTopUpTransaction(transaction)) {
+            return transaction.type;
+        }
+
+        return transaction.accountTo.user.name;
+    }
 </script>
 
 <div
@@ -22,7 +39,7 @@
                     <div class="flex items-center">
                         <div class="flex-1 min-w-0 ms-4">
                             <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
-                                {transaction.accountFromId}
+                                {getTransactionDisplayName(transaction)}
                             </p>
                         </div>
                         <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">

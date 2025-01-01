@@ -42,7 +42,7 @@
 </script>
 
 <div class="home">
-    <h1>Hello {accountOverview?.user.username}</h1>
+    <h1>Hello {accountOverview?.user.name}</h1>
     <button on:click={logout}>Logout</button>
 
     <div class="grid grid-cols-2 gap-4">

@@ -4,25 +4,11 @@ import datetime
 
 from fastapi import HTTPException
 
-from repositories.account_repository_from_base import AccountRepository
+from repositories.account_repository import AccountRepository
 from schemas.user_schemas import UserDetailsResponse
 from models.card import Card
 from repositories.card_repository import CardRepository
 from schemas.card_schemas import CreateCardRequest, UpdateCardRequest
-
-
-def generate_card_number() -> str:
-    char_pool = ''.join([random.choice(string.digits) for _ in range(16)])
-    return ' '.join([char_pool[i:i + 4] for i in range(0, 16, 4)])
-
-
-def generate_cvv() -> str:
-    return ''.join([random.choice(string.digits) for _ in range(3)])
-
-
-def generate_card_expiration_date(plus_year: int = 5, plus_month: int = 0) -> tuple[int, int]:
-    now = datetime.datetime.now()
-    return now.year + plus_year, now.month + plus_month
 
 
 class CardService:
@@ -39,10 +25,10 @@ class CardService:
     def create_new_card(self, user: UserDetailsResponse, data: CreateCardRequest) -> Card:
         associated_account = self.account_repository.find_by_id(data.account_id)
 
-        new_card_number = generate_card_number()
-        new_cvv_code = generate_cvv()
+        new_card_number = self.__generate_card_number()
+        new_cvv_code = self.__generate_cvv()
 
-        expiration_year, expiration_month = generate_card_expiration_date()
+        expiration_year, expiration_month = self.__generate_card_expiration_date()
 
         new_card = Card(
             account_id=associated_account.id,
@@ -57,6 +43,17 @@ class CardService:
         )
 
         return self.card_repository.save(new_card)
+
+    def __generate_card_number(self) -> str:
+        char_pool = ''.join([random.choice(string.digits) for _ in range(16)])
+        return ' '.join([char_pool[i:i + 4] for i in range(0, 16, 4)])
+
+    def __generate_cvv(self) -> str:
+        return ''.join([random.choice(string.digits) for _ in range(3)])
+
+    def __generate_card_expiration_date(self, plus_year: int = 5, plus_month: int = 0) -> tuple[int, int]:
+        now = datetime.datetime.now()
+        return now.year + plus_year, now.month + plus_month
 
     def update_card(self, user: UserDetailsResponse, card_id: int, data: UpdateCardRequest) -> Card:
         if data.is_primary:

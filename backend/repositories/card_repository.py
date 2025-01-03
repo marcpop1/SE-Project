@@ -20,7 +20,7 @@ class CardRepository(RepositoryBase[Card]):
             update(Card)
             .where(Card.account_id == Account.id)
             .where(Account.user_id == user_id)
-            .values(is_primary=False)
+            .values(is_primary=is_primary)
         )
         try:
             self.session.execute(stmt)

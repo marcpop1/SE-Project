@@ -1,4 +1,4 @@
-from typing import Optional, TypeVar, Generic, Type
+from typing import TypeVar, Generic, Type
 
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
@@ -29,7 +29,7 @@ class RepositoryBase(Generic[T]):
         self.session.delete(entity)
         self.session.commit()
 
-    def find_by_id(self, id: int) -> Optional[T]:
+    def find_by_id(self, id: int) -> T:
         entity = self.session.query(self.model).filter(self.model.id == id).first()
         if not entity:
             raise HTTPException(status_code=404, detail=f"Entity with id {id} not found")

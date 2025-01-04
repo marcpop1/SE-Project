@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlalchemy import update
 from sqlalchemy.orm import Session
 
@@ -7,13 +8,15 @@ from repositories.repository_base import RepositoryBase
 
 
 class CardRepository(RepositoryBase[Card]):
-
     def __init__(self, session: Session):
         super().__init__(Card, session)
 
-    def find_all_by_user_id(self, user_id: int) -> list[Card]:
+    def find_all_by_user_id(self, user_id: int, limit: Optional[int] = None) -> list[Card]:
         predicate = Account.user_id == user_id
-        return self.session.query(Card).join(Account).filter(predicate).all()
+        query = self.session.query(Card).join(Account).filter(predicate)
+        if limit is not None:
+            return query.limit(limit).all()
+        return query.all()
 
     def update_primary_status_by_user_id(self, user_id: int, is_primary: bool = False) -> None:
         stmt = (

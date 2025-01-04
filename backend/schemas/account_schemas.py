@@ -19,7 +19,3 @@ class CreateAccountRequest(BaseModel):
     user_id: int
     balance: float
     currency: str
-
-class UpdateAccountRequest(BaseModel):
-    balance: Optional[float] = None
-    currency: Optional[str] = None

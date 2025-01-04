@@ -1,6 +1,8 @@
 import os
 from typing import Annotated
 
+from services.transaction_serializer_service import TransactionSerializerService
+from services.account_overview_service import AccountOverviewService
 from controllers.currency_controller import CurrencyController
 from repositories.account_repository import AccountRepository
 from repositories.card_repository import CardRepository
@@ -88,10 +90,8 @@ admin_dependency = Annotated[UserDetailsResponse, Depends(get_admin_user)]
 def get_card_repository(db: Session = Depends(get_db)) -> CardRepository:
     return CardRepository(session=db)
 
-
 def get_account_repository(db: Session = Depends(get_db)) -> AccountRepository:
     return AccountRepository(session=db)
-
 
 def get_transaction_repository(db: Session = Depends(get_db)) -> TransactionRepository:
     return TransactionRepository(session=db)
@@ -99,10 +99,14 @@ def get_transaction_repository(db: Session = Depends(get_db)) -> TransactionRepo
 def get_user_repository(db: Session = Depends(get_db)) -> UserRepository:
     return UserRepository(session=db)
 
+# controllers
 def get_currency_controller() -> CurrencyController:
     return CurrencyController()
 
 # services
+def get_transaction_serializer() -> TransactionSerializerService:
+    return TransactionSerializerService()
+
 def get_card_service(
         card_repository: CardRepository = Depends(get_card_repository),
         account_repository: AccountRepository = Depends(get_account_repository)
@@ -117,9 +121,10 @@ def get_account_service(
 def get_transaction_service(
     account_repository: AccountRepository = Depends(get_account_repository),
     transaction_repository: TransactionRepository = Depends(get_transaction_repository),
+    transaction_serializer: TransactionSerializerService = Depends(get_transaction_serializer),
     currency_controller: CurrencyController = Depends(get_currency_controller)
 ) -> TransactionService:
-    return TransactionService(account_repository, transaction_repository, currency_controller)
+    return TransactionService(account_repository, transaction_repository, transaction_serializer, currency_controller)
 
 def get_auth_service(
     user_repository: UserRepository = Depends(get_user_repository),
@@ -132,7 +137,14 @@ def get_user_service(
 ) -> UserService:
     return UserService(user_repository)
 
-# renamed dependencies
+def get_account_overview_service(
+    user: UserDetailsResponse = Depends(get_current_user),
+    account_repository: AccountRepository = Depends(get_account_repository),
+    transaction_repository: TransactionRepository = Depends(get_transaction_repository),
+    card_repository: CardRepository = Depends(get_card_repository),
+    transaction_serializer: TransactionSerializerService = Depends(get_transaction_serializer)
+) -> AccountOverviewService:
+    return AccountOverviewService(user, account_repository, transaction_repository, card_repository, transaction_serializer)
 
 DbSession = Annotated[Session, Depends(get_db)]
 LoggedUser = Annotated[UserDetailsResponse, Depends(get_current_user)]

@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 
-class CardDetailResponse(BaseModel):
+class CardResponse(BaseModel):
     id: int
     holder_name: str
     number: str
@@ -23,19 +23,3 @@ class CardDetailResponse(BaseModel):
 class CreateCardRequest(BaseModel):
     type: str
     currency: str
-
-
-class CardResponse(BaseModel):
-    id: int
-    account_id: int
-    holder_name: str
-    number: str
-    expiration_month: int
-    expiration_year: int
-    cvv: str
-    type: str
-    currency: str
-
-    class Config:
-        orm_mode = True
-        from_attributes = True

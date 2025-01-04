@@ -7,10 +7,7 @@ import httpx
 
 from schemas.currency_schemas import ConvertCurrencyRequest, ConvertCurrencyResponse
 
-router = APIRouter(
-    prefix='/currency',
-    tags=['currency']
-)
+router = APIRouter(prefix="/currency", tags=["currency"])
 
 
 load_dotenv()
@@ -18,24 +15,27 @@ load_dotenv()
 CURRENCY_API_KEY = os.getenv("CURRENCY_API_KEY")
 CURRENCY_API_URL = f"https://v6.exchangerate-api.com/v6/{CURRENCY_API_KEY}/pair"
 
+
 @cbv(router)
 class CurrencyController:
     @router.post("/convert")
-    async def convert_currency(
-        self,
-        request: ConvertCurrencyRequest
-    ):
+    async def convert_currency(self, request: ConvertCurrencyRequest):
         try:
             async with httpx.AsyncClient() as client:
-                response = await client.get(f"{CURRENCY_API_URL}/{request.from_currency}/{request.to_currency}/{request.amount}")
+                response = await client.get(
+                    f"{CURRENCY_API_URL}/{request.from_currency}/{request.to_currency}/{request.amount}"
+                )
             if response.status_code != 200:
-                raise HTTPException(status_code=response.status_code, detail="Failed to fetch exchange rates")
-            
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail="Failed to fetch exchange rates",
+                )
+
             data = response.json()
 
             response = ConvertCurrencyResponse(
-                conversion_rate=float(data['conversion_rate']),
-                conversion_result=float(data['conversion_result'])
+                conversion_rate=float(data["conversion_rate"]),
+                conversion_result=float(data["conversion_result"]),
             )
 
             return response

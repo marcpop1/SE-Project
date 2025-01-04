@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from schemas.account_schemas import AccountResponse, CreateAccountRequest, UpdateAccountRequest
+from schemas.account_schemas import AccountResponse, CreateAccountRequest
 from dependencies import get_account_service, get_current_user
 from fastapi_restful.cbv import cbv
 from schemas.user_schemas import UserDetailsResponse
@@ -27,10 +27,6 @@ class AccountController:
     @router.get("/{account_id}", response_model=AccountResponse)
     def retrieve_account_by_id(self, account_id: int):
         return self.account_service.get_account_by_id(account_id)
-
-    @router.put("/{account_id}", response_model=AccountResponse)
-    def update_account(self, account_id: int, payload: UpdateAccountRequest):
-        return self.account_service.update_account_by_id(account_id, data=payload)
 
     @router.delete("/{account_id}", status_code=204)
     def delete_account(self, account_id: int):

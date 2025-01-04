@@ -45,7 +45,6 @@
         });
 
         if (response.ok) {
-            const data = await response.json();
             await goto("/transactions");
         } else {
             const data = await response.json();

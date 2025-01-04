@@ -9,7 +9,7 @@
     let accountOverview: AccountOverview;
 
     onMount(async () => {
-        const response = await fetch("http://localhost:8000/", {
+        const response = await fetch("http://localhost:8000/account_overview/", {
             credentials: "include",
         });
 
@@ -45,17 +45,31 @@
 <div class="home">
     <h1>Hello {accountOverview?.user.name}</h1>
 
-    <div class="grid grid-cols-2 gap-4">
+    <div class="grid grid-cols-2 gap-16">
         <div>
             <BalanceCard
                 balance={accountOverview?.account.balance}
                 currency={accountOverview?.account.currency}
             />
-            <br />
+            <br>
             <CardsCard cards={accountOverview?.cards} />
         </div>
         <div>
-            <TransactionsCard transactions={accountOverview?.transactions} userId={accountOverview?.user.id} />
+            <TransactionsCard transactions={accountOverview?.transactions} />
         </div>
     </div>
 </div>
+
+<style>
+    .home {
+        align-items: center;
+        flex: 1;
+		display: flex;
+		flex-direction: column;
+		padding: 1rem;
+		width: 100%;
+		max-width: 64rem;
+		margin: 0 auto;
+		box-sizing: border-box;
+    }
+</style>

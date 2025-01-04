@@ -4,7 +4,6 @@ from repositories.repository_base import RepositoryBase
 
 
 class UserRepository(RepositoryBase[User]):
-    
     def __init__(self, session):
         super().__init__(User, session)
     

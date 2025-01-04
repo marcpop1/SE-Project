@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from schemas.user_schemas import UserDetailsResponse
 from services.account_service import AccountService
 from services.transaction_service import TransactionService
-from schemas.transaction_schemas import AddMoneyRequest, TransactionResponse, CreateTransactionRequest, UpdateTransactionRequest
+from schemas.transaction_schemas import AddMoneyRequest, TransactionResponse, CreateTransactionRequest
 from dependencies import get_account_service, get_current_user, get_transaction_service
 from fastapi_restful.cbv import cbv
 
@@ -31,10 +31,6 @@ class TransactionController:
     @router.get('/{transaction_id}', response_model=TransactionResponse)
     def get_by_id(self, transaction_id: int):
         return self.transaction_service.get_by_id(transaction_id, self.user)
-    
-    @router.put('/{transaction_id}', response_model=TransactionResponse)
-    def update(self, transaction_id: int, payload: UpdateTransactionRequest):
-        return self.transaction_service.update_transaction(transaction_id, user=self.user, data=payload)
     
     @router.delete('/{transaction_id}', status_code=204)
     def delete(self, transaction_id):

@@ -23,6 +23,7 @@ class UserView:
     @router.post("/register", status_code=201)
     async def register(self, payload: CreateUserRequest):
         self.user_controller.register_user(data=payload, bcrypt=self.bcrypt_context)
+        return
 
     @router.post("/login", response_model=TokenResponse)
     async def login(
@@ -46,9 +47,15 @@ class UserView:
             key=COOKIE_TOKEN_KEY, value=token, httponly=True, secure=True
         )
 
-        return {COOKIE_TOKEN_KEY: token, "token_type": "bearer", "user_role": user.role}
+        token_response = TokenResponse(
+            access_token=token,
+            token_type="bearer",
+            user_role=user.role
+        )
+
+        return token_response
 
     @router.post("/logout", status_code=200)
     async def logout(self, response: Response):
         response.delete_cookie(key=COOKIE_TOKEN_KEY)
-        return {"message": "Successfully logged out"}
+        return

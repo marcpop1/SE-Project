@@ -8,7 +8,7 @@ from repositories.repository_base import RepositoryBase
 
 class TransactionRepository(RepositoryBase[Transaction]):
     def __init__(self, session: Session):
-        super().__init__(Account, session)
+        super().__init__(Transaction, session)
 
 
     def find_all_by_user_id(self, user_id: int) -> list[Transaction]:

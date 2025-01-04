@@ -8,6 +8,7 @@ class CreateUserRequest(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+    user_role: str
 
 class UserDetailsResponse(BaseModel):
     id: int

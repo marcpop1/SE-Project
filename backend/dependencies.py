@@ -117,9 +117,10 @@ def get_transaction_service(
     return TransactionService(account_repository, transaction_repository)
 
 def get_auth_service(
-    user_repository: UserRepository = Depends(get_user_repository) 
+    user_repository: UserRepository = Depends(get_user_repository),
+    account_repository: AccountRepository = Depends(get_account_repository)
 ) -> AuthenticationService:
-    return AuthenticationService(user_repository)
+    return AuthenticationService(user_repository, account_repository)
 
 def get_user_service(
     user_repository: UserRepository = Depends(get_user_repository)

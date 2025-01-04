@@ -1,5 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
+    import { UserRole } from "$lib/models/UserRole";
+    import { userRole } from "$lib/stores/userStore";
 
   let username: string = "";
   let password: string = "";
@@ -20,7 +22,14 @@
     if (response.ok) {
       const data = await response.json();
       console.log("Login successful:", data);
-      await goto("/home");
+      userRole.set(data.user_role);
+      localStorage.setItem('role', data.user_role);
+      if (data.user_role === UserRole.USER) {
+        await goto("/home");
+        return;
+      }
+
+      await goto("/admin")
     } else {
       console.error("Login failed:", response.statusText);
     }
@@ -53,13 +62,6 @@
             for="password"
             class="block text-sm/6 font-medium text-gray-900">Password</label
           >
-          <div class="text-sm">
-            <a
-              href="/"
-              class="font-semibold text-indigo-600 hover:text-indigo-500"
-              >Forgot password?</a
-            >
-          </div>
         </div>
         <div class="mt-2">
           <input

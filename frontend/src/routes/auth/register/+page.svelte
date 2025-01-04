@@ -28,7 +28,7 @@
     if (response.ok) {
       const data = await response.json();
       console.log("Login successful:", data);
-      await goto("auth/login");
+      await goto("/auth/login");
     } else {
       console.error("Login failed:", response.statusText);
     }

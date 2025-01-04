@@ -44,6 +44,9 @@ class TransactionService:
         if afrom.balance < data.amount:
             raise HTTPException(status_code=422, detail="Insufficient funds in the source account")
 
+        if afrom.id == ato.id:
+            raise HTTPException(status_code=422, detail="Cannot send money to the same account")
+
         afrom.balance -= data.amount
         ato.balance += data.amount
         
@@ -81,10 +84,10 @@ class TransactionService:
     def revert_transaction(self, transaction_id: int) -> TransactionResponse:
         transaction_to_revert = self.transaction_repository.find_by_id(id=transaction_id)
    
-        if transaction_to_revert.status == TransactionStatus.REVERTED:
+        if transaction_to_revert.status != TransactionStatus.COMPLETED:
             raise HTTPException(
                 status_code=403,
-                detail=f'Transaction {transaction_id} is already reverted'
+                detail=f'Transaction {transaction_id} is not in completed status'
             )
    
         transfered_amount = transaction_to_revert.amount
@@ -93,7 +96,7 @@ class TransactionService:
         ato = transaction_to_revert.account_to
         
         afrom.balance += transfered_amount
-        ato -= transfered_amount
+        ato.balance -= transfered_amount
         
         self.account_repository.update(entity=ato)
         self.account_repository.update(entity=afrom)

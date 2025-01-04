@@ -19,7 +19,7 @@ bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 @cbv(router)
-class AuthenticationController:
+class UserController:
     authentication_service: AuthenticationService = Depends(get_auth_service)
     
     @router.post("/register", status_code=201)
@@ -47,7 +47,7 @@ class AuthenticationController:
             secure=True
         )
         
-        return {COOKIE_TOKEN_KEY: token, 'token_type': 'bearer'}
+        return {COOKIE_TOKEN_KEY: token, 'token_type': 'bearer', 'user_role': user.role}
         
     @router.post('/logout', status_code=200)
     async def logout(self, response: Response):

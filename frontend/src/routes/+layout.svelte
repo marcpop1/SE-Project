@@ -1,21 +1,54 @@
 <script lang="ts">
-	import Header from './Header.svelte';
-	import '../app.css';
+	import Header from "./Header.svelte";
+	import "../app.css";
+	import { userRole } from "$lib/stores/userStore";
+	import { UserRole } from "$lib/models/UserRole";
+	import AdminHeader from "./AdminHeader.svelte";
+	import GuestHeader from "./GuestHeader.svelte";
+	import { afterNavigate, goto } from "$app/navigation";
+    import { page } from "$app/stores";
 
 	let { children } = $props();
+
+	afterNavigate(async () => {
+		const role = localStorage.getItem("role");
+		console.log("after navigate " + role);
+		if (role) {
+			userRole.set(role);
+		} else {
+			userRole.set(null);
+		}
+
+		if ($page.url.pathname.startsWith("/auth") && role) {
+			if (role === UserRole.ADMIN) {
+				await goto("/admin");
+				return;
+			}
+
+			await goto("/home");
+		}
+		else if ($page.url.pathname.startsWith("/home") && role === UserRole.ADMIN) {
+			await goto("/admin");
+			return;
+		}
+	});
 </script>
 
 <div class="app">
-	<Header />
+	{#if $userRole === UserRole.USER}
+		<Header />
+	{:else if $userRole === UserRole.ADMIN}
+		<AdminHeader />
+	{:else}
+		<GuestHeader />
+	{/if}
 
 	<main>
 		{@render children()}
 	</main>
 
 	<footer>
-		<p>
-			SE Project
-		</p>
+		<p>SE Project</p>
 	</footer>
 </div>
 

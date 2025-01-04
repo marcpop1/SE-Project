@@ -20,7 +20,7 @@ class TransactionController:
     
     @router.post("/", response_model=TransactionResponse, status_code=201)
     def create_transaction(self, payload: CreateTransactionRequest):
-        source_account = self.account_service.get_account_by_user_id(user=self.user)
+        source_account = self.account_service.get_account_by_user_id(user_id=self.user.id)
         destination_account = self.account_service.get_account_by_username(username=payload.account_to_username)
         return self.transaction_service.place_transaction_between_accounts(source_account, destination_account, payload)
     
@@ -42,5 +42,5 @@ class TransactionController:
         
     @router.post('/add-money/', response_model=TransactionResponse, status_code=201)
     def add_money(self, payload: AddMoneyRequest):
-        account_to_add = self.account_service.get_account_by_user_id(user=self.user)
+        account_to_add = self.account_service.get_account_by_user_id(user_id=self.user.id)
         return self.transaction_service.add_money(account=account_to_add, data=payload)

@@ -1,28 +1,30 @@
 from fastapi import HTTPException
-from services.transaction_serializer_service import TransactionSerializerService
+from controllers.transaction_serializer_controller import TransactionSerializerController
+from schemas.add_money_request import AddMoneyRequest
+from schemas.create_transaction_request import CreateTransactionRequest
 from shared.enums.currency import Currency
-from schemas.currency_schemas import ConvertCurrencyRequest
+from schemas.convert_currency_request import ConvertCurrencyRequest
 from views.currency_view import CurrencyView
 from models.account import Account
 from repositories.account_repository import AccountRepository
 from models.transaction import Transaction
-from schemas.user_schemas import UserDetailsResponse
+from schemas.user_details_response import UserDetailsResponse
 from shared.enums.transaction.transaction_status import TransactionStatus
 from shared.enums.transaction.transaction_type import TransactionType
 from repositories.transaction_repository import TransactionRepository
-from schemas.transaction_schemas import AddMoneyRequest, CreateTransactionRequest, TransactionResponse
+from schemas.transaction_response import TransactionResponse
 
 
-class TransactionService:
+class TransactionController:
     def __init__(self,
                  account_repository: AccountRepository,
                  transaction_repository: TransactionRepository,
-                 transaction_serializer: TransactionSerializerService,
-                 currency_controller: CurrencyView):
+                 transaction_serializer: TransactionSerializerController,
+                 currency_view: CurrencyView):
         self.account_repository = account_repository
         self.transaction_repository = transaction_repository
         self.transaction_serializer = transaction_serializer
-        self.currency_controller = currency_controller
+        self.currency_view = currency_view
 
     def get_by_id(self, transaction_id: int, user: UserDetailsResponse) -> TransactionResponse:
         transaction = self.transaction_repository.find_by_id(id=transaction_id)
@@ -43,7 +45,7 @@ class TransactionService:
             amount=data.amount
         )
 
-        conversion_response = await self.currency_controller.convert_currency(convert_currency_request)
+        conversion_response = await self.currency_view.convert_currency(convert_currency_request)
         converted_amount = conversion_response.conversion_result
 
         if afrom.balance < converted_amount:

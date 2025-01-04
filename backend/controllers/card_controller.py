@@ -5,13 +5,13 @@ import datetime
 from fastapi import HTTPException
 
 from repositories.account_repository import AccountRepository
-from schemas.user_schemas import UserDetailsResponse
+from schemas.user_details_response import UserDetailsResponse
 from models.card import Card
 from repositories.card_repository import CardRepository
-from schemas.card_schemas import CreateCardRequest
+from schemas.create_card_request import CreateCardRequest
 
 
-class CardService:
+class CardController:
     def __init__(self, card_repository: CardRepository, account_repository: AccountRepository):
         self.card_repository = card_repository
         self.account_repository = account_repository

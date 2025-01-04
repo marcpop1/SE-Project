@@ -1,10 +1,11 @@
 from models.account import Account
 from repositories.account_repository import AccountRepository
-from schemas.account_schemas import AccountResponse, CreateAccountRequest
-from schemas.user_schemas import UserDetailsResponse
+from schemas.account_response import AccountResponse
+from schemas.create_account_request import CreateAccountRequest
+from schemas.user_details_response import UserDetailsResponse
 
 
-class AccountService:
+class AccountController:
     def __init__(self, account_repository: AccountRepository):
         self.account_repository = account_repository
         

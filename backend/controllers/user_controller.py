@@ -4,10 +4,12 @@ from models.account import Account
 from repositories.account_repository import AccountRepository
 from models.user import User
 from repositories.user_repository import UserRepository
-from schemas.user_schemas import CreateUserRequest
+from schemas.create_user_request import CreateUserRequest
 from jose import jwt
 
-class AuthenticationService:
+from schemas.user_details_response import UserDetailsResponse
+
+class UserController:
     def __init__(self, user_repository: UserRepository, account_repository: AccountRepository):
         self.user_repository = user_repository
         self.account_repository = account_repository
@@ -43,5 +45,9 @@ class AuthenticationService:
         }
         
         return jwt.encode(jwt_payload, key, algorithm=alg)
+    
+    def get_all_users(self) -> list[UserDetailsResponse]:
+        users = self.user_repository.find_all()
+        return [UserDetailsResponse.model_validate(user) for user in users]
         
         

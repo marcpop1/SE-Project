@@ -1,22 +1,22 @@
 from fastapi import HTTPException
-from services.transaction_serializer_service import TransactionSerializerService
-from schemas.account_schemas import AccountResponse
-from schemas.card_schemas import CardResponse
+from controllers.transaction_serializer_controller import TransactionSerializerController
+from schemas.account_response import AccountResponse
+from schemas.card_response import CardResponse
 from repositories.account_repository import AccountRepository
 from repositories.card_repository import CardRepository
 from repositories.transaction_repository import TransactionRepository
 from schemas.account_overview_response import AccountOverviewResponse
-from schemas.user_schemas import UserDetailsResponse
+from schemas.user_details_response import UserDetailsResponse
 
 
-class AccountOverviewService:
+class AccountOverviewController:
     def __init__(
         self,
         user: UserDetailsResponse,
         account_repository: AccountRepository,
         transaction_repository: TransactionRepository,
         card_repository: CardRepository,
-        transaction_serializer: TransactionSerializerService
+        transaction_serializer: TransactionSerializerController
     ):
         self.user = user
         self.account_repository = account_repository

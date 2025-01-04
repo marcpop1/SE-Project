@@ -1,9 +1,9 @@
 from pydantic import BaseModel
 
-from schemas.account_schemas import AccountResponse
-from schemas.user_schemas import UserDetailsResponse
-from schemas.card_schemas import CardResponse
-from schemas.transaction_schemas import TransactionResponse
+from schemas.account_response import AccountResponse
+from schemas.user_details_response import UserDetailsResponse
+from schemas.card_response import CardResponse
+from schemas.transaction_response import TransactionResponse
 
 
 class AccountOverviewResponse(BaseModel):

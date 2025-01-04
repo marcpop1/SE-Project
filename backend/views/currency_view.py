@@ -5,7 +5,8 @@ from fastapi_restful.cbv import cbv
 from fastapi import APIRouter, HTTPException, Query
 import httpx
 
-from schemas.currency_schemas import ConvertCurrencyRequest, ConvertCurrencyResponse
+from schemas.convert_currency_request import ConvertCurrencyRequest
+from schemas.convert_currency_response import ConvertCurrencyResponse
 
 router = APIRouter(prefix="/currency", tags=["currency"])
 

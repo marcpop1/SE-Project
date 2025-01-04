@@ -18,8 +18,3 @@ class CardResponse(BaseModel):
             for i, word in enumerate(string.split('_'))
         )
         populate_by_name = True
-
-
-class CreateCardRequest(BaseModel):
-    type: str
-    currency: str

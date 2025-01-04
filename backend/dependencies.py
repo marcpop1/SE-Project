@@ -1,25 +1,25 @@
 import os
 from typing import Annotated
 
-from services.transaction_serializer_service import TransactionSerializerService
-from services.account_overview_service import AccountOverviewService
+from controllers.transaction_serializer_controller import TransactionSerializerController
+from controllers.account_overview_controller import AccountOverviewController
 from views.currency_view import CurrencyView
 from repositories.account_repository import AccountRepository
 from repositories.card_repository import CardRepository
 from repositories.transaction_repository import TransactionRepository
 from repositories.user_repository import UserRepository
-from services.account_service import AccountService
-from services.auth_service import AuthenticationService
-from services.card_service import CardService
+from controllers.account_controller import AccountController
+from controllers.user_controller import UserController
+from controllers.card_controller import CardController
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException
 from jose import jwt, JWTError
 from sqlalchemy.orm import Session
 from starlette import status
 
-from schemas.user_schemas import UserDetailsResponse
-from services.transaction_service import TransactionService
-from services.user_service import UserService
+from schemas.user_details_response import UserDetailsResponse
+from controllers.transaction_controller import TransactionController
+from controllers.user_controller import UserController
 from shared.enums.user.user_role import UserRole
 from database import SessionLocal
 from fastapi import Request
@@ -104,47 +104,42 @@ def get_currency_controller() -> CurrencyView:
     return CurrencyView()
 
 # services
-def get_transaction_serializer() -> TransactionSerializerService:
-    return TransactionSerializerService()
+def get_transaction_serializer() -> TransactionSerializerController:
+    return TransactionSerializerController()
 
-def get_card_service(
+def get_card_controller(
         card_repository: CardRepository = Depends(get_card_repository),
         account_repository: AccountRepository = Depends(get_account_repository)
-) -> CardService:
-    return CardService(card_repository, account_repository)
+) -> CardController:
+    return CardController(card_repository, account_repository)
 
-def get_account_service(
+def get_account_controller(
     account_repository: AccountRepository = Depends(get_account_repository)
-) -> AccountService:
-    return AccountService(account_repository)
+) -> AccountController:
+    return AccountController(account_repository)
 
-def get_transaction_service(
+def get_transaction_controller(
     account_repository: AccountRepository = Depends(get_account_repository),
     transaction_repository: TransactionRepository = Depends(get_transaction_repository),
-    transaction_serializer: TransactionSerializerService = Depends(get_transaction_serializer),
+    transaction_serializer: TransactionSerializerController = Depends(get_transaction_serializer),
     currency_controller: CurrencyView = Depends(get_currency_controller)
-) -> TransactionService:
-    return TransactionService(account_repository, transaction_repository, transaction_serializer, currency_controller)
+) -> TransactionController:
+    return TransactionController(account_repository, transaction_repository, transaction_serializer, currency_controller)
 
-def get_auth_service(
+def get_user_controller(
     user_repository: UserRepository = Depends(get_user_repository),
     account_repository: AccountRepository = Depends(get_account_repository)
-) -> AuthenticationService:
-    return AuthenticationService(user_repository, account_repository)
+) -> UserController:
+    return UserController(user_repository, account_repository)
 
-def get_user_service(
-    user_repository: UserRepository = Depends(get_user_repository)
-) -> UserService:
-    return UserService(user_repository)
-
-def get_account_overview_service(
+def get_account_overview_controller(
     user: UserDetailsResponse = Depends(get_current_user),
     account_repository: AccountRepository = Depends(get_account_repository),
     transaction_repository: TransactionRepository = Depends(get_transaction_repository),
     card_repository: CardRepository = Depends(get_card_repository),
-    transaction_serializer: TransactionSerializerService = Depends(get_transaction_serializer)
-) -> AccountOverviewService:
-    return AccountOverviewService(user, account_repository, transaction_repository, card_repository, transaction_serializer)
+    transaction_serializer: TransactionSerializerController = Depends(get_transaction_serializer)
+) -> AccountOverviewController:
+    return AccountOverviewController(user, account_repository, transaction_repository, card_repository, transaction_serializer)
 
 DbSession = Annotated[Session, Depends(get_db)]
 LoggedUser = Annotated[UserDetailsResponse, Depends(get_current_user)]

@@ -2,10 +2,11 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Response
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext
-from dependencies import SECRET_KEY, ALGORITHM, get_auth_service
-from schemas.user_schemas import CreateUserRequest, TokenResponse
+from dependencies import SECRET_KEY, ALGORITHM, get_user_controller
+from schemas.create_user_request import CreateUserRequest
 from fastapi_restful.cbv import cbv
-from services.auth_service import AuthenticationService
+from controllers.user_controller import UserController
+from schemas.token_response import TokenResponse
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -15,13 +16,13 @@ COOKIE_TOKEN_KEY = "access_token"
 
 @cbv(router)
 class UserView:
-    authentication_service: AuthenticationService = Depends(get_auth_service)
+    user_controller: UserController = Depends(get_user_controller)
     bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
     oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/token")
 
     @router.post("/register", status_code=201)
     async def register(self, payload: CreateUserRequest):
-        self.authentication_service.register_user(data=payload, bcrypt=self.bcrypt_context)
+        self.user_controller.register_user(data=payload, bcrypt=self.bcrypt_context)
 
     @router.post("/login", response_model=TokenResponse)
     async def login(
@@ -29,13 +30,13 @@ class UserView:
         response: Response,
         form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     ):
-        user = self.authentication_service.authenticate(
+        user = self.user_controller.authenticate(
             username=form_data.username,
             password=form_data.password,
             bcrypt=self.bcrypt_context,
         )
 
-        token = self.authentication_service.create_access_token(
+        token = self.user_controller.create_access_token(
             user=user,
             key=SECRET_KEY,
             alg=ALGORITHM,

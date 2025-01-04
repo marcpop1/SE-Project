@@ -2,9 +2,12 @@
     import { page } from "$app/stores";
     import type { Account } from "$lib/models/Account";
     import type { Transaction } from "$lib/models/Transaction";
-    import { getTransactionStatusString, TransactionStatus } from "$lib/models/TransactionStatus";
+    import {
+        getTransactionStatusString,
+        TransactionStatus,
+    } from "$lib/models/TransactionStatus";
     import { TransactionType } from "$lib/models/TransactionType";
-    import type { UserDetails } from "$lib/models/UserDetails";
+    import { getCounterparty, wasTransactionReverted } from "$lib/utils/transactionUtils";
     import { onMount } from "svelte";
 
     let userId: string;
@@ -32,7 +35,7 @@
             console.log(account);
             return account;
         }
-        
+
         return null;
     }
 
@@ -49,16 +52,21 @@
             const data = await response.json();
             transactions = data.map((transaction: any) => {
                 const createdAt = new Date(transaction.createdAt);
-                console.log('createdAt:', createdAt, 'isDate:', createdAt instanceof Date);
+                console.log(
+                    "createdAt:",
+                    createdAt,
+                    "isDate:",
+                    createdAt instanceof Date,
+                );
                 return {
                     ...transaction,
-                    createdAt
+                    createdAt,
                 };
             });
             console.log(transactions);
             return transactions;
         }
-        
+
         return [];
     }
 
@@ -79,15 +87,10 @@
     }
 
     function canReverseTransaction(transaction: Transaction): boolean {
-        return transaction.type == TransactionType.TRANSFER && transaction.status == TransactionStatus.COMPLETED;
-    }
-
-    function getCounterparty(transaction: Transaction): UserDetails {
-        if (transaction.accountFrom.user.id?.toString() !== userId) {
-            return transaction.accountFrom.user;
-        }
-
-        return transaction.accountTo.user;
+        return (
+            transaction.type == TransactionType.TRANSFER &&
+            transaction.status == TransactionStatus.COMPLETED
+        );
     }
 </script>
 
@@ -104,6 +107,8 @@
                     <th>Account holder name</th>
                     <th>Amount</th>
                     <th>Currency</th>
+                    <th>Converted Amount</th>
+                    <th>Rate</th>
                     <th>Type</th>
                     <th>Status</th>
                     <th>Date</th>
@@ -111,22 +116,33 @@
             </thead>
             <tbody>
                 {#each transactions as transaction}
-                    <tr>
+                    <tr
+                        class={transaction.amount < 0
+                            ? "bg-red-100"
+                            : "bg-green-100"}
+                    >
                         <td>{transaction.id}</td>
                         <td>{getCounterparty(transaction).username}</td>
                         <td>{getCounterparty(transaction).name}</td>
                         <td>{transaction.amount}</td>
                         <td>{transaction.currency}</td>
+                        <td>{transaction.convertedAmount}</td>
+                        <td>{transaction.rate}</td>
                         <td>{transaction.type}</td>
-                        <td>{getTransactionStatusString(transaction.status)}</td>
+                        <td class={wasTransactionReverted(transaction) ? 'bg-red-300' : ''}>{getTransactionStatusString(transaction.status)}</td
+                        >
                         <td>{transaction.createdAt?.toLocaleString()}</td>
-                        {#if canReverseTransaction(transaction)}
-                            <th>
-                                <button class="btn btn-ghost btn-xs" on:click={async () => await reverseTransaction(transaction.id)}
-                                    >Reverse transaction</button
+                        <th>
+                            {#if canReverseTransaction(transaction)}
+                                <button
+                                    class="btn btn-ghost btn-xs"
+                                    on:click={async () =>
+                                        await reverseTransaction(
+                                            transaction.id,
+                                        )}>Reverse transaction</button
                                 >
-                            </th>
-                        {/if}
+                            {/if}
+                        </th>
                     </tr>
                 {/each}
             </tbody>

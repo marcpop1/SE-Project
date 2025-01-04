@@ -27,7 +27,7 @@ class AuthenticationService:
         user = self.user_repository.find_by_username(username)
         
         if not bcrypt.verify(password, user.hashed_password):
-            raise HTTPException(status_code=401, detail='Provided password is incorect')
+            raise HTTPException(status_code=401, detail='Provided password is incorrect')
         
         return user
     

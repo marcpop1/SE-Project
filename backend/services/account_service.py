@@ -1,6 +1,6 @@
 from models.account import Account
 from repositories.account_repository import AccountRepository
-from schemas.account_schemas import AccountResponse, CreateAccountRequest, UpdateAccountRequest
+from schemas.account_schemas import AccountResponse, CreateAccountRequest
 from schemas.user_schemas import UserDetailsResponse
 
 
@@ -39,16 +39,6 @@ class AccountService:
         account = self.account_repository.find_by_username(username)
         account.balance = round(account.balance, 2)
         return account
-    
-    def update_account_by_id(self, account_id: int, data: UpdateAccountRequest) -> AccountResponse:
-        account_to_update = self.account_repository.find_by_id(id=account_id)
-        
-        for key, value in data.__dict__.items():
-            setattr(account_to_update, key, value)
-        
-        updated_account = self.account_repository.update(entity=account_to_update)
-        updated_account.balance = round(updated_account.balance, 2)
-        return AccountResponse.model_validate(updated_account)
     
     def remove_account_by_id(self, account_id: int) -> None:
         account_to_delete = self.account_repository.find_by_id(id=account_id)

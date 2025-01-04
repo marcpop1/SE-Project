@@ -1,4 +1,5 @@
 from fastapi import HTTPException
+from services.transaction_serializer_service import TransactionSerializerService
 from shared.enums.currency import Currency
 from schemas.currency_schemas import ConvertCurrencyRequest
 from controllers.currency_controller import CurrencyController
@@ -16,18 +17,20 @@ class TransactionService:
     def __init__(self,
                  account_repository: AccountRepository,
                  transaction_repository: TransactionRepository,
+                 transaction_serializer: TransactionSerializerService,
                  currency_controller: CurrencyController):
         self.account_repository = account_repository
         self.transaction_repository = transaction_repository
+        self.transaction_serializer = transaction_serializer
         self.currency_controller = currency_controller
 
     def get_by_id(self, transaction_id: int, user: UserDetailsResponse) -> TransactionResponse:
         transaction = self.transaction_repository.find_by_id(id=transaction_id)
-        return self.__serialize_transaction(transaction, user.id)
+        return self.transaction_serializer.serialize_transaction(transaction, user.id)
     
     def retrieve_all_for_user(self, user_id: int) -> list[TransactionResponse]:
         transactions = self.transaction_repository.find_all_by_user_id(user_id)
-        return [self.__serialize_transaction(t, user_id) for t in transactions]
+        return [self.transaction_serializer.serialize_transaction(t, user_id) for t in transactions]
 
     def update_transaction(self, transaction_id: int, user: UserDetailsResponse, data: UpdateTransactionRequest) -> TransactionResponse:
         transaction_to_update = self.transaction_repository.find_one_by_user_id(transaction_id, user_id=user.id)
@@ -120,8 +123,3 @@ class TransactionService:
         updated_transaction = self.transaction_repository.update(entity=transaction_to_revert)    
         
         return TransactionResponse.model_validate(updated_transaction)
-    
-    def __serialize_transaction(self, transaction: Transaction, user_id: int) -> TransactionResponse:
-        if transaction.account_from.user.id == user_id:
-            TransactionResponse.model_validate(transaction).model_copy(update={"amount": -transaction.amount})
-        return TransactionResponse.model_validate(transaction) 

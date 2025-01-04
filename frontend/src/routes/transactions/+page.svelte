@@ -2,6 +2,7 @@
     import { goto } from "$app/navigation";
     import type { Transaction } from "$lib/models/Transaction";
     import { getTransactionStatusString } from "$lib/models/TransactionStatus";
+    import { getCounterparty, wasTransactionReverted } from "$lib/utils/transactionUtils";
     import { onMount } from "svelte";
 
     let transactions: Transaction[];
@@ -45,17 +46,16 @@
                     <th>Type</th>
                     <th>Status</th>
                     <th>Date</th>
-                    <th></th>
                 </tr>
             </thead>
             <tbody>
                 {#each transactions as transaction}
-                    <tr>
+                    <tr class={transaction.amount < 0 ? 'bg-red-100' : 'bg-green-100'}>
                         <td>
                             <div class="flex items-center gap-3">
                                 <div>
                                     <div class="font-bold">
-                                        {transaction.accountTo?.user.name}
+                                        {getCounterparty(transaction).name}
                                     </div>
                                 </div>
                             </div>
@@ -65,12 +65,11 @@
                         <td>{transaction.convertedAmount}</td>
                         <td>{transaction.rate}</td>
                         <td>{transaction.type}</td>
-                        <td>{getTransactionStatusString(transaction.status)}</td>
+                        <td class={wasTransactionReverted(transaction) ? 'bg-red-300' : ''}>{getTransactionStatusString(transaction.status)}</td>
                         <td>{transaction.createdAt?.toLocaleString()}</td>
                     </tr>
                 {/each}
             </tbody>
-            <tfoot> </tfoot>
         </table>
     </div>
     <div>

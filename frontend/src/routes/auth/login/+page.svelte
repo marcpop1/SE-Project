@@ -1,10 +1,11 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-    import { UserRole } from "$lib/models/UserRole";
-    import { userRole } from "$lib/stores/userStore";
+  import { UserRole } from "$lib/models/UserRole";
+  import { userRole } from "$lib/stores/userStore";
 
   let username: string = "";
   let password: string = "";
+  let errorMessage: string = "";
 
   async function handleSubmit(event: any) {
     event.preventDefault();
@@ -23,15 +24,17 @@
       const data = await response.json();
       console.log("Login successful:", data);
       userRole.set(data.user_role);
-      localStorage.setItem('role', data.user_role);
+      localStorage.setItem("role", data.user_role);
       if (data.user_role === UserRole.USER) {
         await goto("/home");
         return;
       }
 
-      await goto("/admin")
+      await goto("/admin");
     } else {
       console.error("Login failed:", response.statusText);
+      const data = await response.json();
+      errorMessage = data.detail;
     }
   }
 </script>
@@ -75,7 +78,11 @@
           />
         </div>
       </div>
-
+      <div class="text-center">
+        {#if errorMessage}
+          <span class="text-red-600">{errorMessage}</span>
+        {/if}
+      </div>
       <div>
         <button
           type="submit"

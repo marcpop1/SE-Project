@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import HTTPException
 from sqlalchemy import desc
 from sqlalchemy.orm import Session, aliased
@@ -11,17 +12,21 @@ class TransactionRepository(RepositoryBase[Transaction]):
         super().__init__(Transaction, session)
 
 
-    def find_all_by_user_id(self, user_id: int) -> list[Transaction]:
+    def find_all_by_user_id(self, user_id: int, limit: Optional[int] = None) -> list[Transaction]:
         account_from = aliased(Account)
         account_to = aliased(Account)
 
-        return self.session \
+        query = self.session \
             .query(Transaction) \
             .join(account_from, Transaction.account_from_id == account_from.id) \
             .join(account_to, Transaction.account_to_id == account_to.id) \
             .filter((account_from.user_id == user_id) | (account_to.user_id == user_id)) \
-            .order_by(desc(Transaction.created_at)) \
-            .all() 
+            .order_by(desc(Transaction.created_at))
+        
+        if limit is not None:
+            return query.limit(limit).all()
+
+        return query.all()
             
     def find_one_by_user_id(self, transaction_id: int, user_id: int) -> Transaction:
         account_from = aliased(Account)

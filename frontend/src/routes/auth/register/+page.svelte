@@ -11,11 +11,11 @@
   $: isPasswordMatch = password === confirmPassword ? true : false;
 
   async function handleSubmit(event: any) {
+    event.preventDefault();
+    
     if (!isPasswordMatch) {
       return;
     }
-
-    event.preventDefault();
 
     const response = await fetch("http://localhost:8000/auth/register", {
       method: "POST",

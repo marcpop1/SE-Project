@@ -13,6 +13,7 @@ from views import admin_view
 from views import currency_view
 from views import account_overview_view
 
+
 app = FastAPI()
 
 origins = [

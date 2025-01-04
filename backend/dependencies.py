@@ -99,11 +99,11 @@ def get_transaction_repository(db: Session = Depends(get_db)) -> TransactionRepo
 def get_user_repository(db: Session = Depends(get_db)) -> UserRepository:
     return UserRepository(session=db)
 
-# controllers
-def get_currency_controller() -> CurrencyView:
+# views
+def get_currency_view() -> CurrencyView:
     return CurrencyView()
 
-# services
+# controllers
 def get_transaction_serializer() -> TransactionSerializerController:
     return TransactionSerializerController()
 
@@ -122,7 +122,7 @@ def get_transaction_controller(
     account_repository: AccountRepository = Depends(get_account_repository),
     transaction_repository: TransactionRepository = Depends(get_transaction_repository),
     transaction_serializer: TransactionSerializerController = Depends(get_transaction_serializer),
-    currency_controller: CurrencyView = Depends(get_currency_controller)
+    currency_controller: CurrencyView = Depends(get_currency_view)
 ) -> TransactionController:
     return TransactionController(account_repository, transaction_repository, transaction_serializer, currency_controller)
 

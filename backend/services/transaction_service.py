@@ -1,4 +1,7 @@
 from fastapi import HTTPException
+from shared.enums.currency import Currency
+from schemas.currency_schemas import ConvertCurrencyRequest
+from controllers.currency_controller import CurrencyController
 from models.account import Account
 from repositories.account_repository import AccountRepository
 from models.transaction import Transaction
@@ -9,23 +12,22 @@ from repositories.transaction_repository import TransactionRepository
 from schemas.transaction_schemas import AddMoneyRequest, CreateTransactionRequest, TransactionResponse, UpdateTransactionRequest
 
 
-def serialize_transaction(transaction: Transaction, user_id: int) -> TransactionResponse:
-    if transaction.account_from_id == user_id:
-        TransactionResponse.model_validate(transaction).model_copy(update={"amount": -transaction.amount})
-    return TransactionResponse.model_validate(transaction) 
-
 class TransactionService:
-    def __init__(self, account_repository: AccountRepository, transaction_repository: TransactionRepository):
+    def __init__(self,
+                 account_repository: AccountRepository,
+                 transaction_repository: TransactionRepository,
+                 currency_controller: CurrencyController):
         self.account_repository = account_repository
         self.transaction_repository = transaction_repository
+        self.currency_controller = currency_controller
 
     def get_by_id(self, transaction_id: int, user: UserDetailsResponse) -> TransactionResponse:
         transaction = self.transaction_repository.find_by_id(id=transaction_id)
-        return serialize_transaction(transaction, user.id)
+        return self.__serialize_transaction(transaction, user.id)
     
     def retrieve_all_for_user(self, user_id: int) -> list[TransactionResponse]:
         transactions = self.transaction_repository.find_all_by_user_id(user_id)
-        return [serialize_transaction(t, user_id) for t in transactions]
+        return [self.__serialize_transaction(t, user_id) for t in transactions]
 
     def update_transaction(self, transaction_id: int, user: UserDetailsResponse, data: UpdateTransactionRequest) -> TransactionResponse:
         transaction_to_update = self.transaction_repository.find_one_by_user_id(transaction_id, user_id=user.id)
@@ -40,15 +42,24 @@ class TransactionService:
         transaction_to_delete = self.transaction_repository.find_one_by_user_id(transaction_id, user_id=user.id)        
         self.transaction_repository.delete(entity=transaction_to_delete)
 
-    def place_transaction_between_accounts(self, afrom: Account, ato: Account, data: CreateTransactionRequest) -> TransactionResponse:
-        if afrom.balance < data.amount:
+    async def place_transaction_between_accounts(self, afrom: Account, ato: Account, data: CreateTransactionRequest) -> TransactionResponse:
+        convert_currency_request = ConvertCurrencyRequest(
+            from_currency=data.currency,
+            to_currency=Currency.RON,
+            amount=data.amount
+        )
+
+        conversion_response = await self.currency_controller.convert_currency(convert_currency_request)
+        converted_amount = conversion_response.conversion_result
+
+        if afrom.balance < converted_amount:
             raise HTTPException(status_code=422, detail="Insufficient funds in the source account")
 
         if afrom.id == ato.id:
             raise HTTPException(status_code=422, detail="Cannot send money to the same account")
 
-        afrom.balance -= data.amount
-        ato.balance += data.amount
+        afrom.balance -= converted_amount
+        ato.balance += converted_amount
         
         self.account_repository.update(entity=afrom)
         self.account_repository.update(entity=ato)
@@ -58,6 +69,8 @@ class TransactionService:
             account_to_id = ato.id,
             amount = data.amount,
             currency = data.currency,
+            converted_amount = converted_amount,
+            rate = conversion_response.conversion_rate,
             status = TransactionStatus.COMPLETED,
             type = TransactionType.TRANSFER
         )
@@ -73,7 +86,9 @@ class TransactionService:
             account_from_id = account.id,
             account_to_id = account.id,
             amount = data.amount,
-            currency = "RON",
+            currency = Currency.RON.value,
+            converted_amount = data.amount,
+            rate = 1,
             status = TransactionStatus.COMPLETED,
             type = TransactionType.TOP_UP
         )
@@ -90,7 +105,7 @@ class TransactionService:
                 detail=f'Transaction {transaction_id} is not in completed status'
             )
    
-        transfered_amount = transaction_to_revert.amount
+        transfered_amount = transaction_to_revert.converted_amount
         
         afrom = transaction_to_revert.account_from
         ato = transaction_to_revert.account_to
@@ -105,3 +120,8 @@ class TransactionService:
         updated_transaction = self.transaction_repository.update(entity=transaction_to_revert)    
         
         return TransactionResponse.model_validate(updated_transaction)
+    
+    def __serialize_transaction(self, transaction: Transaction, user_id: int) -> TransactionResponse:
+        if transaction.account_from.user.id == user_id:
+            TransactionResponse.model_validate(transaction).model_copy(update={"amount": -transaction.amount})
+        return TransactionResponse.model_validate(transaction) 

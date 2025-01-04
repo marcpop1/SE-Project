@@ -19,6 +19,7 @@ from controllers import account_controller as account_routes
 from controllers import card_controller as card_routes
 from controllers import transaction_controller as transaction_routes
 from controllers import admin_controller as admin_routes
+from controllers import currency_controller as currency_routes
 from database import engine
 from dependencies import user_dependency, db_dependency
 
@@ -42,6 +43,7 @@ app.include_router(account_routes.router)
 app.include_router(card_routes.router)
 app.include_router(transaction_routes.router)
 app.include_router(admin_routes.router)
+app.include_router(currency_routes.router)
 
 user_model.Base.metadata.create_all(bind=engine)
 account_model.Base.metadata.create_all(bind=engine)
@@ -54,6 +56,7 @@ async def get_user_account(user: user_dependency, db: db_dependency):
         raise HTTPException(status_code=401, detail='Authentication failed')
     
     account = db.query(Account).filter(Account.user_id == user.id).first()
+    account.balance = round(account.balance, 2)
     if not account:
         create_account_model = Account(
             user_id = user.id,

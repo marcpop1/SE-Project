@@ -8,6 +8,8 @@ export interface Transaction {
     accountToId: number;
     amount: number;
     currency: string;
+    convertedAmount: number;
+    rate: number;
     status: TransactionStatus;
     type: TransactionType;
     createdAt: Date;

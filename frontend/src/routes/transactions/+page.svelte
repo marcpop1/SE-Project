@@ -40,6 +40,8 @@
                     <th>Name</th>
                     <th>Amount</th>
                     <th>Currency</th>
+                    <th>Converted Amount</th>
+                    <th>Rate</th>
                     <th>Type</th>
                     <th>Status</th>
                     <th>Date</th>
@@ -60,6 +62,8 @@
                         </td>
                         <td>{transaction.amount}</td>
                         <td>{transaction.currency}</td>
+                        <td>{transaction.convertedAmount}</td>
+                        <td>{transaction.rate}</td>
                         <td>{transaction.type}</td>
                         <td>{getTransactionStatusString(transaction.status)}</td>
                         <td>{transaction.createdAt?.toLocaleString()}</td>

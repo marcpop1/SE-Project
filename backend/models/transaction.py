@@ -11,6 +11,8 @@ class Transaction(Base):
     account_to_id = Column(Integer, ForeignKey('accounts.id'), index=True)
     amount = Column(Float)
     currency = Column(String)
+    converted_amount = Column(Float)
+    rate = Column(Float)
     type = Column(Enum(TransactionType), default=TransactionType.TRANSFER)
     status = Column(Integer)
     created_at = Column(DateTime, default=datetime.now)

@@ -12,12 +12,6 @@
 			<li aria-current={$page.url.pathname === '/home' ? 'page' : undefined}>
 				<a href="/home">Home</a>
 			</li>
-			<li aria-current={$page.url.pathname === '/transactions' ? 'page' : undefined}>
-				<a href="/transactions">Transactions</a>
-			</li>
-			<li aria-current={$page.url.pathname.startsWith('/cards') ? 'page' : undefined}>
-				<a href="/cards">Cards</a>
-			</li>
 			<li>
 				<button on:click={async () => logout()}>Logout</button>
 			</li>

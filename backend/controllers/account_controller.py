@@ -38,7 +38,7 @@ class AccountController:
 
     @router.get("/user/")
     def retrieve_first_by_user_id(self):
-        return self.account_service.get_account_by_user_id(user=self.user)
+        return self.account_service.get_account_by_user_id(user_id=self.user.id)
 
     @router.get("/username/{username}", response_model=AccountResponse)
     def retrieve_by_username(self, username: str):

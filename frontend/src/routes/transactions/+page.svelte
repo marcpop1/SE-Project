@@ -13,7 +13,15 @@
         });
 
         if (response.ok) {
-            transactions = await response.json();
+            const data = await response.json();
+            transactions = data.map((transaction: any) => {
+                const createdAt = new Date(transaction.createdAt);
+                console.log('createdAt:', createdAt, 'isDate:', createdAt instanceof Date);
+                return {
+                    ...transaction,
+                    createdAt
+                };
+            });
             console.log(transactions);
         }
     });
@@ -64,7 +72,7 @@
                         <td>{transaction.currency}</td>
                         <td>{transaction.type}</td>
                         <td>{getTransactionStatusString(transaction.status)}</td>
-                        <td>{transaction.createdAt}</td>
+                        <td>{transaction.createdAt?.toLocaleString()}</td>
                     </tr>
                 {/each}
             </tbody>

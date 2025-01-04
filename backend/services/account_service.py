@@ -25,10 +25,10 @@ class AccountService:
         account = self.account_repository.find_by_id(id=account_id)
         return account
     
-    def get_account_by_user_id(self, user: UserDetailsResponse) -> Account:
+    def get_account_by_user_id(self, user_id: int) -> Account:
         """Returns the first account for the specified user.id, HTTPException is raised if no account found"""
         
-        account = self.account_repository.find_one_by_user_id(user_id=user.id)
+        account = self.account_repository.find_one_by_user_id(user_id=user_id)
         return account
     
     def get_account_by_username(self, username: str) -> Account:

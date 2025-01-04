@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-    import { logout } from '$lib/stores/userStore';
 </script>
 
 <header class="justify-center">
@@ -9,17 +8,11 @@
 			<path d="M0,0 L1,2 C1.5,3 1.5,3 2,3 L2,0 Z" />
 		</svg>
 		<ul>
-			<li aria-current={$page.url.pathname === '/home' ? 'page' : undefined}>
-				<a href="/home">Home</a>
+			<li aria-current={$page.url.pathname === '/auth/login' ? 'page' : undefined}>
+				<a href="/auth/login">Sign in</a>
 			</li>
-			<li aria-current={$page.url.pathname === '/transactions' ? 'page' : undefined}>
-				<a href="/transactions">Transactions</a>
-			</li>
-			<li aria-current={$page.url.pathname.startsWith('/cards') ? 'page' : undefined}>
-				<a href="/cards">Cards</a>
-			</li>
-			<li>
-				<button on:click={async () => logout()}>Logout</button>
+			<li aria-current={$page.url.pathname === '/auth/register' ? 'page' : undefined}>
+				<a href="/auth/register">Sign up</a>
 			</li>
 		</ul>
 		<svg viewBox="0 0 2 3" aria-hidden="true">
@@ -81,20 +74,6 @@
 	}
 
 	nav a {
-		display: flex;
-		height: 100%;
-		align-items: center;
-		padding: 0 0.5rem;
-		color: var(--color-text);
-		font-weight: 700;
-		font-size: 0.8rem;
-		text-transform: uppercase;
-		letter-spacing: 0.1em;
-		text-decoration: none;
-		transition: color 0.2s linear;
-	}
-
-	nav button {
 		display: flex;
 		height: 100%;
 		align-items: center;

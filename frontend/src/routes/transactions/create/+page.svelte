@@ -8,6 +8,7 @@
     let username: string;
     let amount: number;
     let currency: string;
+    let errorMessage: string = "";
 
     onMount(async () => {
         const response = await fetch("http://localhost:8000/accounts/user/", {
@@ -23,13 +24,14 @@
 
     async function createTransaction(event: any) {
         event.preventDefault();
+        errorMessage = '';
 
         const response = await fetch("http://localhost:8000/transactions/", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            credentials: 'include',
+            credentials: "include",
             body: JSON.stringify({
                 account_to_username: username,
                 amount: amount,
@@ -40,6 +42,9 @@
         if (response.ok) {
             const data = await response.json();
             await goto("/transactions");
+        } else {
+            const data = await response.json();
+            errorMessage = data.detail;
         }
     }
 </script>
@@ -85,6 +90,11 @@
         />
     </label>
 
+    <div class="text-center">
+        {#if errorMessage}
+            <span class="text-red-600">{errorMessage}</span>
+        {/if}
+    </div>
     <div class="text-center">
         <button class="btn btn-wide btn-primary" on:click={createTransaction}
             >Create Transaction</button

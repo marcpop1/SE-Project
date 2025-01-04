@@ -1,7 +1,7 @@
 from typing import Optional
 from pydantic import BaseModel
 
-from schemas.user_schemas import UserDetailsResponse
+from schemas.user_details_response import UserDetailsResponse
 
 
 class AccountResponse(BaseModel):
@@ -14,8 +14,3 @@ class AccountResponse(BaseModel):
     class Config:
         orm_mode = True
         from_attributes = True
-
-class CreateAccountRequest(BaseModel):
-    user_id: int
-    balance: float
-    currency: str

@@ -1,42 +1,118 @@
-from fastapi import APIRouter, Depends
-from schemas.user_schemas import UserDetailsResponse
-from services.account_service import AccountService
-from services.transaction_service import TransactionService
-from schemas.transaction_schemas import AddMoneyRequest, TransactionResponse, CreateTransactionRequest
-from dependencies import get_account_service, get_current_user, get_transaction_service
-from fastapi_restful.cbv import cbv
+from fastapi import HTTPException
+from controllers.transaction_serializer_controller import TransactionSerializerController
+from schemas.add_money_request import AddMoneyRequest
+from schemas.create_transaction_request import CreateTransactionRequest
+from shared.enums.currency import Currency
+from schemas.convert_currency_request import ConvertCurrencyRequest
+from views.currency_view import CurrencyView
+from models.account import Account
+from repositories.account_repository import AccountRepository
+from models.transaction import Transaction
+from schemas.user_details_response import UserDetailsResponse
+from shared.enums.transaction.transaction_status import TransactionStatus
+from shared.enums.transaction.transaction_type import TransactionType
+from repositories.transaction_repository import TransactionRepository
+from schemas.transaction_response import TransactionResponse
 
-router = APIRouter(
-    prefix='/transactions',
-    tags=['transactions']
-)
-        
 
-@cbv(router)
 class TransactionController:
-    user: UserDetailsResponse = Depends(get_current_user)
-    transaction_service: TransactionService = Depends(get_transaction_service)
-    account_service: AccountService = Depends(get_account_service)
+    def __init__(self,
+                 account_repository: AccountRepository,
+                 transaction_repository: TransactionRepository,
+                 transaction_serializer: TransactionSerializerController,
+                 currency_view: CurrencyView):
+        self.account_repository = account_repository
+        self.transaction_repository = transaction_repository
+        self.transaction_serializer = transaction_serializer
+        self.currency_view = currency_view
+
+    def get_by_id(self, transaction_id: int, user: UserDetailsResponse) -> TransactionResponse:
+        transaction = self.transaction_repository.find_by_id(id=transaction_id)
+        return self.transaction_serializer.serialize_transaction(transaction, user.id)
     
-    @router.post("/", response_model=TransactionResponse, status_code=201)
-    async def create_transaction(self, payload: CreateTransactionRequest):
-        source_account = self.account_service.get_account_by_user_id(user_id=self.user.id)
-        destination_account = self.account_service.get_account_by_username(username=payload.account_to_username)
-        return await self.transaction_service.place_transaction_between_accounts(source_account, destination_account, payload)
+    def retrieve_all_for_user(self, user_id: int) -> list[TransactionResponse]:
+        transactions = self.transaction_repository.find_all_by_user_id(user_id)
+        return [self.transaction_serializer.serialize_transaction(t, user_id) for t in transactions]
     
-    @router.get("/", response_model=list[TransactionResponse])
-    def list_all_for_logged_user(self):
-        return self.transaction_service.retrieve_all_for_user(user_id=self.user.id)
-    
-    @router.get('/{transaction_id}', response_model=TransactionResponse)
-    def get_by_id(self, transaction_id: int):
-        return self.transaction_service.get_by_id(transaction_id, self.user)
-    
-    @router.delete('/{transaction_id}', status_code=204)
-    def delete(self, transaction_id):
-        self.transaction_service.delete_transaction(transaction_id, user=self.user)
+    def delete_transaction(self, transaction_id, user: UserDetailsResponse) -> None:
+        transaction_to_delete = self.transaction_repository.find_one_by_user_id(transaction_id, user_id=user.id)        
+        self.transaction_repository.delete(entity=transaction_to_delete)
+
+    async def place_transaction_between_accounts(self, afrom: Account, ato: Account, data: CreateTransactionRequest) -> TransactionResponse:
+        convert_currency_request = ConvertCurrencyRequest(
+            from_currency=data.currency,
+            to_currency=Currency.RON,
+            amount=data.amount
+        )
+
+        conversion_response = await self.currency_view.convert_currency(convert_currency_request)
+        converted_amount = conversion_response.conversion_result
+
+        if afrom.balance < converted_amount:
+            raise HTTPException(status_code=422, detail="Insufficient funds in the source account")
+
+        if afrom.id == ato.id:
+            raise HTTPException(status_code=422, detail="Cannot send money to the same account")
+
+        afrom.balance -= converted_amount
+        ato.balance += converted_amount
         
-    @router.post('/add-money/', response_model=TransactionResponse, status_code=201)
-    def add_money(self, payload: AddMoneyRequest):
-        account_to_add = self.account_service.get_account_by_user_id(user_id=self.user.id)
-        return self.transaction_service.add_money(account=account_to_add, data=payload)
+        self.account_repository.update(entity=afrom)
+        self.account_repository.update(entity=ato)
+
+        transaction = Transaction(
+            account_from_id = afrom.id,
+            account_to_id = ato.id,
+            amount = data.amount,
+            currency = data.currency,
+            converted_amount = converted_amount,
+            rate = conversion_response.conversion_rate,
+            status = TransactionStatus.COMPLETED,
+            type = TransactionType.TRANSFER
+        )
+        
+        placed_transaction = self.transaction_repository.save(entity=transaction)
+        return TransactionResponse.model_validate(placed_transaction)
+ 
+    def add_money(self, account: Account, data: AddMoneyRequest) -> TransactionResponse:
+        account.balance += data.amount
+        self.account_repository.update(account)
+
+        new_transaction = Transaction(
+            account_from_id = account.id,
+            account_to_id = account.id,
+            amount = data.amount,
+            currency = Currency.RON.value,
+            converted_amount = data.amount,
+            rate = 1,
+            status = TransactionStatus.COMPLETED,
+            type = TransactionType.TOP_UP
+        )
+
+        transaction = self.transaction_repository.save(entity=new_transaction)
+        return TransactionResponse.model_validate(transaction)
+    
+    def revert_transaction(self, transaction_id: int) -> TransactionResponse:
+        transaction_to_revert = self.transaction_repository.find_by_id(id=transaction_id)
+   
+        if transaction_to_revert.status != TransactionStatus.COMPLETED:
+            raise HTTPException(
+                status_code=403,
+                detail=f'Transaction {transaction_id} is not in completed status'
+            )
+   
+        transfered_amount = transaction_to_revert.converted_amount
+        
+        afrom = transaction_to_revert.account_from
+        ato = transaction_to_revert.account_to
+        
+        afrom.balance += transfered_amount
+        ato.balance -= transfered_amount
+        
+        self.account_repository.update(entity=ato)
+        self.account_repository.update(entity=afrom)
+        
+        transaction_to_revert.status = TransactionStatus.REVERTED 
+        updated_transaction = self.transaction_repository.update(entity=transaction_to_revert)    
+        
+        return TransactionResponse.model_validate(updated_transaction)

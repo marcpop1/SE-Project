@@ -1,53 +1,53 @@
-from typing import Annotated
-from fastapi import APIRouter, Depends, Response
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from passlib.context import CryptContext
-from dependencies import SECRET_KEY, ALGORITHM, get_auth_service
-from schemas.user_schemas import CreateUserRequest, TokenResponse
-from fastapi_restful.cbv import cbv
-from services.auth_service import AuthenticationService
+from datetime import timedelta, datetime
+from fastapi import HTTPException
+from models.account import Account
+from repositories.account_repository import AccountRepository
+from models.user import User
+from repositories.user_repository import UserRepository
+from schemas.create_user_request import CreateUserRequest
+from jose import jwt
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+from schemas.user_details_response import UserDetailsResponse
 
-
-COOKIE_TOKEN_KEY = "access_token"
-
-
-@cbv(router)
 class UserController:
-    authentication_service: AuthenticationService = Depends(get_auth_service)
-    bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-    oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/token")
-
-    @router.post("/register", status_code=201)
-    async def register(self, payload: CreateUserRequest):
-        self.authentication_service.register_user(data=payload, bcrypt=self.bcrypt_context)
-
-    @router.post("/login", response_model=TokenResponse)
-    async def login(
-        self,
-        response: Response,
-        form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-    ):
-        user = self.authentication_service.authenticate(
-            username=form_data.username,
-            password=form_data.password,
-            bcrypt=self.bcrypt_context,
+    def __init__(self, user_repository: UserRepository, account_repository: AccountRepository):
+        self.user_repository = user_repository
+        self.account_repository = account_repository
+        
+    def register_user(self, data: CreateUserRequest, bcrypt) -> None:
+        hashed_password = bcrypt.hash(data.password)
+        user_to_register = User(name=data.name, username=data.username, hashed_password=hashed_password)
+        self.user_repository.save(user_to_register)
+        user_account = Account(
+            user_id = user_to_register.id,
+            balance = 0.0,
+            currency = 'RON'
         )
-
-        token = self.authentication_service.create_access_token(
-            user=user,
-            key=SECRET_KEY,
-            alg=ALGORITHM,
-        )
-
-        response.set_cookie(
-            key=COOKIE_TOKEN_KEY, value=token, httponly=True, secure=True
-        )
-
-        return {COOKIE_TOKEN_KEY: token, "token_type": "bearer", "user_role": user.role}
-
-    @router.post("/logout", status_code=200)
-    async def logout(self, response: Response):
-        response.delete_cookie(key=COOKIE_TOKEN_KEY)
-        return {"message": "Successfully logged out"}
+        self.account_repository.save(user_account)
+        
+    def authenticate(self, username: str, password: str, bcrypt) -> User:
+        user = self.user_repository.find_by_username(username)
+        
+        if not bcrypt.verify(password, user.hashed_password):
+            raise HTTPException(status_code=401, detail='Provided password is incorrect')
+        
+        return user
+    
+    def create_access_token(self, user: User, key: str, alg: str, valid_period: timedelta = timedelta(days=1)) -> str:
+        expires_at = datetime.utcnow() + valid_period
+        
+        jwt_payload = {
+            'id': user.id,
+            'sub': user.username,
+            'name': user.name,
+            'role': user.role.value,
+            'exp': expires_at
+        }
+        
+        return jwt.encode(jwt_payload, key, algorithm=alg)
+    
+    def get_all_users(self) -> list[UserDetailsResponse]:
+        users = self.user_repository.find_all()
+        return [UserDetailsResponse.model_validate(user) for user in users]
+        
+        

@@ -1,33 +1,59 @@
-from fastapi import APIRouter, Depends
-from fastapi_restful.cbv import cbv
+import random
+import string
+import datetime
 
-from schemas.user_schemas import UserDetailsResponse
-from schemas.card_schemas import CardResponse, CreateCardRequest
-from services.card_service import CardService
-from dependencies import get_card_service, get_current_user
+from fastapi import HTTPException
 
-router = APIRouter(
-    prefix='/cards',
-    tags=['cards']
-)
+from repositories.account_repository import AccountRepository
+from schemas.user_details_response import UserDetailsResponse
+from models.card import Card
+from repositories.card_repository import CardRepository
+from schemas.create_card_request import CreateCardRequest
 
 
-@cbv(router)
 class CardController:
-    card_service: CardService = Depends(get_card_service)
-    user: UserDetailsResponse = Depends(get_current_user)
+    def __init__(self, card_repository: CardRepository, account_repository: AccountRepository):
+        self.card_repository = card_repository
+        self.account_repository = account_repository
 
-    @router.get("/", response_model=list[CardResponse])
-    def get_cards_for_user(self):
-        cards = self.card_service.find_cards_for_user(self.user)
+    def find_cards_for_user(self, user: UserDetailsResponse) -> list[Card]:
+        cards = self.card_repository.find_all_by_user_id(user.id)
+        if not cards:
+            raise HTTPException(status_code=404, detail=f"User {user.id} does nto have any cards")
         return cards
 
-    @router.post("/", response_model=CardResponse)
-    def add_card_for_user(self, payload: CreateCardRequest):
-        card = self.card_service.create_new_card(self.user, data=payload)
-        return CardResponse.model_validate(card)
+    def create_new_card(self, user: UserDetailsResponse, data: CreateCardRequest) -> Card:
+        associated_account = self.account_repository.find_one_by_user_id(user.id)
 
-    @router.delete("/{card_id}", status_code=204)
-    def remove_specified_card(self, card_id: int):
-        self.card_service.remove_card_by_id(card_id)
-        return
+        new_card_number = self.__generate_card_number()
+        new_cvv_code = self.__generate_cvv()
+
+        expiration_year, expiration_month = self.__generate_card_expiration_date()
+
+        new_card = Card(
+            account_id=associated_account.id,
+            holder_name=associated_account.user.name,
+            number=new_card_number,
+            expiration_month=expiration_month,
+            expiration_year=expiration_year,
+            cvv=new_cvv_code,
+            type=data.type,
+            currency=data.currency,
+        )
+
+        return self.card_repository.save(new_card)
+
+    def __generate_card_number(self) -> str:
+        char_pool = ''.join([random.choice(string.digits) for _ in range(16)])
+        return ' '.join([char_pool[i:i + 4] for i in range(0, 16, 4)])
+
+    def __generate_cvv(self) -> str:
+        return ''.join([random.choice(string.digits) for _ in range(3)])
+
+    def __generate_card_expiration_date(self, plus_year: int = 5, plus_month: int = 0) -> tuple[int, int]:
+        now = datetime.datetime.now()
+        return now.year + plus_year, now.month + plus_month
+
+    def remove_card_by_id(self, card_id: int):
+        card_to_remove = self.card_repository.find_by_id(card_id)
+        self.card_repository.delete(card_to_remove)

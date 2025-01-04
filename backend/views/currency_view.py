@@ -5,7 +5,8 @@ from fastapi_restful.cbv import cbv
 from fastapi import APIRouter, HTTPException, Query
 import httpx
 
-from schemas.currency_schemas import ConvertCurrencyRequest, ConvertCurrencyResponse
+from schemas.convert_currency_request import ConvertCurrencyRequest
+from schemas.convert_currency_response import ConvertCurrencyResponse
 
 router = APIRouter(prefix="/currency", tags=["currency"])
 
@@ -17,7 +18,7 @@ CURRENCY_API_URL = f"https://v6.exchangerate-api.com/v6/{CURRENCY_API_KEY}/pair"
 
 
 @cbv(router)
-class CurrencyController:
+class CurrencyView:
     @router.post("/convert")
     async def convert_currency(self, request: ConvertCurrencyRequest):
         try:

@@ -2,7 +2,7 @@ from typing import Optional
 from pydantic import BaseModel
 from datetime import datetime
 
-from schemas.account_schemas import AccountResponse
+from schemas.account_response import AccountResponse
 from shared.enums.transaction.transaction_type import TransactionType
 
 class TransactionResponse(BaseModel):
@@ -25,11 +25,3 @@ class TransactionResponse(BaseModel):
             for i, word in enumerate(string.split('_'))
         )
         populate_by_name = True
-
-class CreateTransactionRequest(BaseModel):
-    account_to_username: str
-    amount: float
-    currency: str
-
-class AddMoneyRequest(BaseModel):
-    amount: float

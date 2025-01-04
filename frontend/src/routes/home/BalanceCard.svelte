@@ -19,16 +19,19 @@
     async function addMoney(event: any) {
         event.preventDefault();
 
-        const response = await fetch("http://localhost:8000/transactions/add-money/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
+        const response = await fetch(
+            "http://localhost:8000/transactions/add-money/",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    amount: addAmount,
+                }),
             },
-            credentials: 'include',
-            body: JSON.stringify({
-                amount: addAmount
-            }),
-        });
+        );
 
         if (response.ok) {
             console.log(await response.json());
@@ -58,19 +61,23 @@
 
             <!-- Modal Content -->
             <form on:submit={addMoney}>
-                <div class="form-control">
+                <div>
                     <label class="label" for="money">
                         <span class="label-text">Amount</span>
                     </label>
-                    <input bind:value={addAmount}
-                        name="money"
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        class="input input-bordered w-full"
-                        placeholder="Enter amount"
-                        required
-                    />
+                    <label class="input input-bordered flex items-center gap-2">
+                        <input
+                            bind:value={addAmount}
+                            name="money"
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            class="grow"
+                            placeholder="Enter amount"
+                            required
+                        />
+                        RON
+                    </label>
                 </div>
 
                 <!-- Modal Actions -->

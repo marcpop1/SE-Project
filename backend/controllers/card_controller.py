@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from fastapi_restful.cbv import cbv
 
 from schemas.user_schemas import UserDetailsResponse
-from schemas.card_schemas import CardDetailResponse, CreateCardRequest, UpdateCardRequest
+from schemas.card_schemas import CardDetailResponse, CreateCardRequest
 from services.card_service import CardService
 from dependencies import get_card_service, get_current_user
 
@@ -27,11 +27,7 @@ class CardController:
         card = self.card_service.create_new_card(self.user, data=payload)
         return CardDetailResponse.model_validate(card)
 
-    @router.put("/{card_id}", response_model=CardDetailResponse)
-    def update_specified_card(self, card_id: int, payload: UpdateCardRequest):
-        updated_card = self.card_service.update_card(self.user, card_id, data=payload)
-        return CardDetailResponse.model_validate(updated_card)
-
     @router.delete("/{card_id}", status_code=204)
     def remove_specified_card(self, card_id: int):
         self.card_service.remove_card_by_id(card_id)
+        return

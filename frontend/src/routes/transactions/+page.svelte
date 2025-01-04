@@ -37,11 +37,6 @@
             <!-- head -->
             <thead>
                 <tr>
-                    <th>
-                        <label>
-                            <input type="checkbox" class="checkbox" />
-                        </label>
-                    </th>
                     <th>Name</th>
                     <th>Amount</th>
                     <th>Currency</th>
@@ -54,11 +49,6 @@
             <tbody>
                 {#each transactions as transaction}
                     <tr>
-                        <th>
-                            <label>
-                                <input type="checkbox" class="checkbox" />
-                            </label>
-                        </th>
                         <td>
                             <div class="flex items-center gap-3">
                                 <div>

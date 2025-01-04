@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from services.transaction_serializer_service import TransactionSerializerService
 from shared.enums.currency import Currency
 from schemas.currency_schemas import ConvertCurrencyRequest
-from controllers.currency_controller import CurrencyController
+from views.currency_view import CurrencyView
 from models.account import Account
 from repositories.account_repository import AccountRepository
 from models.transaction import Transaction
@@ -18,7 +18,7 @@ class TransactionService:
                  account_repository: AccountRepository,
                  transaction_repository: TransactionRepository,
                  transaction_serializer: TransactionSerializerService,
-                 currency_controller: CurrencyController):
+                 currency_controller: CurrencyView):
         self.account_repository = account_repository
         self.transaction_repository = transaction_repository
         self.transaction_serializer = transaction_serializer

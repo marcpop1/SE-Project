@@ -17,7 +17,7 @@ CURRENCY_API_URL = f"https://v6.exchangerate-api.com/v6/{CURRENCY_API_KEY}/pair"
 
 
 @cbv(router)
-class CurrencyController:
+class CurrencyView:
     @router.post("/convert")
     async def convert_currency(self, request: ConvertCurrencyRequest):
         try:

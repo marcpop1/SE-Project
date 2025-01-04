@@ -1,17 +1,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from controllers import user_controller
+from views import user_view
 from database import engine
 import models.user as user_model
 import models.account as account_model
 import models.card as card_model
 import models.transaction as transaction_model
-from controllers import account_controller as account_routes
-from controllers import card_controller as card_routes
-from controllers import transaction_controller as transaction_routes
-from controllers import admin_controller as admin_routes
-from controllers import currency_controller as currency_routes
-from controllers import account_overview_controller as account_overview_routes
+from views import account_view
+from views import card_view
+from views import transaction_view
+from views import admin_view
+from views import currency_view
+from views import account_overview_view
 
 app = FastAPI()
 
@@ -28,13 +28,13 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
-app.include_router(user_controller.router)
-app.include_router(account_routes.router)
-app.include_router(card_routes.router)
-app.include_router(transaction_routes.router)
-app.include_router(admin_routes.router)
-app.include_router(currency_routes.router)
-app.include_router(account_overview_routes.router)
+app.include_router(user_view.router)
+app.include_router(account_view.router)
+app.include_router(card_view.router)
+app.include_router(transaction_view.router)
+app.include_router(admin_view.router)
+app.include_router(currency_view.router)
+app.include_router(account_overview_view.router)
 
 user_model.Base.metadata.create_all(bind=engine)
 account_model.Base.metadata.create_all(bind=engine)

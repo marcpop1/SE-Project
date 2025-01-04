@@ -9,7 +9,7 @@ router = APIRouter(prefix="/account_overview", tags=["account_overview"])
 
 
 @cbv(router)
-class AccountOverviewController:
+class AccountOverviewView:
     account_overview_service: AccountOverviewService = Depends(get_account_overview_service)
 
     @router.get("/", response_model=AccountOverviewResponse)

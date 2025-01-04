@@ -18,7 +18,7 @@ router = APIRouter(
 
 
 @cbv(router)
-class AdminController:
+class AdminView:
     user_service: UserService = Depends(get_user_service)
     account_service: AccountService = Depends(get_account_service)
     transaction_service: TransactionService = Depends(get_transaction_service)

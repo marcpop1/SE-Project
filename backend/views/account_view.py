@@ -12,7 +12,7 @@ router = APIRouter(
 
 
 @cbv(router)
-class AccountController:
+class AccountView:
     user: UserDetailsResponse = Depends(get_current_user)
     account_service: AccountService = Depends(get_account_service)
     

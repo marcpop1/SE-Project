@@ -3,7 +3,7 @@ from typing import Annotated
 
 from services.transaction_serializer_service import TransactionSerializerService
 from services.account_overview_service import AccountOverviewService
-from controllers.currency_controller import CurrencyController
+from views.currency_view import CurrencyView
 from repositories.account_repository import AccountRepository
 from repositories.card_repository import CardRepository
 from repositories.transaction_repository import TransactionRepository
@@ -100,8 +100,8 @@ def get_user_repository(db: Session = Depends(get_db)) -> UserRepository:
     return UserRepository(session=db)
 
 # controllers
-def get_currency_controller() -> CurrencyController:
-    return CurrencyController()
+def get_currency_controller() -> CurrencyView:
+    return CurrencyView()
 
 # services
 def get_transaction_serializer() -> TransactionSerializerService:
@@ -122,7 +122,7 @@ def get_transaction_service(
     account_repository: AccountRepository = Depends(get_account_repository),
     transaction_repository: TransactionRepository = Depends(get_transaction_repository),
     transaction_serializer: TransactionSerializerService = Depends(get_transaction_serializer),
-    currency_controller: CurrencyController = Depends(get_currency_controller)
+    currency_controller: CurrencyView = Depends(get_currency_controller)
 ) -> TransactionService:
     return TransactionService(account_repository, transaction_repository, transaction_serializer, currency_controller)
 

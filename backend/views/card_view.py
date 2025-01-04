@@ -13,7 +13,7 @@ router = APIRouter(
 
 
 @cbv(router)
-class CardController:
+class CardView:
     card_service: CardService = Depends(get_card_service)
     user: UserDetailsResponse = Depends(get_current_user)
 

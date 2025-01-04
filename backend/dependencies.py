@@ -1,6 +1,7 @@
 import os
 from typing import Annotated
 
+from controllers.currency_controller import CurrencyController
 from repositories.account_repository import AccountRepository
 from repositories.card_repository import CardRepository
 from repositories.transaction_repository import TransactionRepository
@@ -98,6 +99,9 @@ def get_transaction_repository(db: Session = Depends(get_db)) -> TransactionRepo
 def get_user_repository(db: Session = Depends(get_db)) -> UserRepository:
     return UserRepository(session=db)
 
+def get_currency_controller() -> CurrencyController:
+    return CurrencyController()
+
 # services
 def get_card_service(
         card_repository: CardRepository = Depends(get_card_repository),
@@ -112,9 +116,10 @@ def get_account_service(
 
 def get_transaction_service(
     account_repository: AccountRepository = Depends(get_account_repository),
-    transaction_repository: TransactionRepository = Depends(get_transaction_repository)
+    transaction_repository: TransactionRepository = Depends(get_transaction_repository),
+    currency_controller: CurrencyController = Depends(get_currency_controller)
 ) -> TransactionService:
-    return TransactionService(account_repository, transaction_repository)
+    return TransactionService(account_repository, transaction_repository, currency_controller)
 
 def get_auth_service(
     user_repository: UserRepository = Depends(get_user_repository),

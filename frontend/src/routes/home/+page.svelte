@@ -55,7 +55,7 @@
             <CardsCard cards={accountOverview?.cards} />
         </div>
         <div>
-            <TransactionsCard transactions={accountOverview?.transactions} />
+            <TransactionsCard transactions={accountOverview?.transactions} userId={accountOverview?.user.id} />
         </div>
     </div>
 </div>

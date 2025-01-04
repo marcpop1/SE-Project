@@ -1,8 +1,10 @@
 <script lang="ts">
-        import type { Transaction } from "$lib/models/Transaction";
+    import type { Transaction } from "$lib/models/Transaction";
     import { TransactionType } from "$lib/models/TransactionType";
+    import type { UserDetails } from "$lib/models/UserDetails";
 
     export let transactions: Transaction[] = [];
+    export let userId: number;
 
     function isTopUpTransaction(transaction: Transaction): boolean {
         if (transaction.type === TransactionType.TOP_UP) {
@@ -17,7 +19,15 @@
             return transaction.type;
         }
 
-        return transaction.accountTo.user.name;
+        return getCounterparty(transaction).name;
+    }
+
+    function getCounterparty(transaction: Transaction): UserDetails {
+        if (transaction.accountFrom.user.id !== userId) {
+            return transaction.accountFrom.user;
+        }
+
+        return transaction.accountTo.user;
     }
 </script>
 

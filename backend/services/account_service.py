@@ -23,18 +23,21 @@ class AccountService:
         """Returns the account with the coresponding id, HTTPException is raised if no account found"""
         
         account = self.account_repository.find_by_id(id=account_id)
+        account.balance = round(account.balance, 2)
         return account
     
     def get_account_by_user_id(self, user_id: int) -> Account:
         """Returns the first account for the specified user.id, HTTPException is raised if no account found"""
         
         account = self.account_repository.find_one_by_user_id(user_id=user_id)
+        account.balance = round(account.balance, 2)
         return account
     
     def get_account_by_username(self, username: str) -> Account:
         """Returns the first account for the specified user.username, HTTPException is raised if no account found"""
         
         account = self.account_repository.find_by_username(username)
+        account.balance = round(account.balance, 2)
         return account
     
     def update_account_by_id(self, account_id: int, data: UpdateAccountRequest) -> AccountResponse:
@@ -44,6 +47,7 @@ class AccountService:
             setattr(account_to_update, key, value)
         
         updated_account = self.account_repository.update(entity=account_to_update)
+        updated_account.balance = round(updated_account.balance, 2)
         return AccountResponse.model_validate(updated_account)
     
     def remove_account_by_id(self, account_id: int) -> None:

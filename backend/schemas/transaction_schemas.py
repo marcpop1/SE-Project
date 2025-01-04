@@ -11,6 +11,8 @@ class TransactionResponse(BaseModel):
     account_to_id: int
     amount: float
     currency: str
+    converted_amount: float
+    rate: float
     created_at: datetime
     account_from: Optional[AccountResponse] = None
     account_to: Optional[AccountResponse] = None

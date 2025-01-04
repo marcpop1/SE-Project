@@ -33,9 +33,3 @@ class CreateTransactionRequest(BaseModel):
 
 class AddMoneyRequest(BaseModel):
     amount: float
-
-class UpdateTransactionRequest(BaseModel):
-    account_from_id: Optional[int] = None
-    account_to_id: Optional[int] = None
-    amount: Optional[float] = None
-    currency: Optional[str] = None

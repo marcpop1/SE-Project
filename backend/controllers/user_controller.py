@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, Response
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 from dependencies import SECRET_KEY, ALGORITHM, get_auth_service
-from schemas.user_schemas import CreateUserRequest, Token
+from schemas.user_schemas import CreateUserRequest, TokenResponse
 from fastapi_restful.cbv import cbv
 from services.auth_service import AuthenticationService
 
@@ -23,7 +23,7 @@ class UserController:
     async def register(self, payload: CreateUserRequest):
         self.authentication_service.register_user(data=payload, bcrypt=self.bcrypt_context)
 
-    @router.post("/login", response_model=Token)
+    @router.post("/login", response_model=TokenResponse)
     async def login(
         self,
         response: Response,

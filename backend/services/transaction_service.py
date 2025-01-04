@@ -10,7 +10,7 @@ from schemas.user_schemas import UserDetailsResponse
 from shared.enums.transaction.transaction_status import TransactionStatus
 from shared.enums.transaction.transaction_type import TransactionType
 from repositories.transaction_repository import TransactionRepository
-from schemas.transaction_schemas import AddMoneyRequest, CreateTransactionRequest, TransactionResponse, UpdateTransactionRequest
+from schemas.transaction_schemas import AddMoneyRequest, CreateTransactionRequest, TransactionResponse
 
 
 class TransactionService:
@@ -31,15 +31,6 @@ class TransactionService:
     def retrieve_all_for_user(self, user_id: int) -> list[TransactionResponse]:
         transactions = self.transaction_repository.find_all_by_user_id(user_id)
         return [self.transaction_serializer.serialize_transaction(t, user_id) for t in transactions]
-
-    def update_transaction(self, transaction_id: int, user: UserDetailsResponse, data: UpdateTransactionRequest) -> TransactionResponse:
-        transaction_to_update = self.transaction_repository.find_one_by_user_id(transaction_id, user_id=user.id)
-        
-        for key, value in transaction_to_update.__dict__.items():
-            setattr(transaction_to_update, key, value)
-            
-        updated_transaction = self.transaction_repository.update(entity=transaction_to_update)
-        return TransactionResponse.model_validate(updated_transaction)
     
     def delete_transaction(self, transaction_id, user: UserDetailsResponse) -> None:
         transaction_to_delete = self.transaction_repository.find_one_by_user_id(transaction_id, user_id=user.id)        

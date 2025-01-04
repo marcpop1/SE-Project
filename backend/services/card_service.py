@@ -8,7 +8,7 @@ from repositories.account_repository import AccountRepository
 from schemas.user_schemas import UserDetailsResponse
 from models.card import Card
 from repositories.card_repository import CardRepository
-from schemas.card_schemas import CreateCardRequest, UpdateCardRequest
+from schemas.card_schemas import CreateCardRequest
 
 
 class CardService:
@@ -23,7 +23,7 @@ class CardService:
         return cards
 
     def create_new_card(self, user: UserDetailsResponse, data: CreateCardRequest) -> Card:
-        associated_account = self.account_repository.find_by_id(data.account_id)
+        associated_account = self.account_repository.find_one_by_user_id(user.id)
 
         new_card_number = self.__generate_card_number()
         new_cvv_code = self.__generate_cvv()
@@ -37,9 +37,8 @@ class CardService:
             expiration_month=expiration_month,
             expiration_year=expiration_year,
             cvv=new_cvv_code,
-            type=data.card_type,
-            currency=data.card_currency,
-            is_primary=data.is_primary
+            type=data.type,
+            currency=data.currency,
         )
 
         return self.card_repository.save(new_card)
@@ -54,20 +53,6 @@ class CardService:
     def __generate_card_expiration_date(self, plus_year: int = 5, plus_month: int = 0) -> tuple[int, int]:
         now = datetime.datetime.now()
         return now.year + plus_year, now.month + plus_month
-
-    def update_card(self, user: UserDetailsResponse, card_id: int, data: UpdateCardRequest) -> Card:
-        if data.is_primary:
-            self.card_repository.update_primary_status_by_user_id(user.id)
-
-        card_to_update = self.card_repository.find_by_id(card_id)
-        card_to_update.is_primary = data.is_primary
-        card_to_update.currency = data.card_currency
-
-        updated_card = self.card_repository.update(card_to_update)
-        if not updated_card:
-            raise HTTPException(status_code=500, detail=f"Failed to update card {card_id}")
-
-        return updated_card
 
     def remove_card_by_id(self, card_id: int):
         card_to_remove = self.card_repository.find_by_id(card_id)

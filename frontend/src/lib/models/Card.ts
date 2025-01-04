@@ -1,3 +1,5 @@
+import type { CardType } from "./CardType";
+
 export interface Card {
     id: number;
     accountId: number;
@@ -6,7 +8,6 @@ export interface Card {
     expirationMonth: number;
     expirationYear: number;
     cvv: string;
-    type: string;
+    type: CardType;
     currency: string;
-    isPrimary: boolean;
 }

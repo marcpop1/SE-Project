@@ -19,16 +19,25 @@
 			userRole.set(null);
 		}
 
-		if ($page.url.pathname.startsWith("/auth") && role) {
+		if ($page.url.pathname === "/") {
+			await goto("/auth/login");
+			return;
+		}
+		else if ($page.url.pathname.startsWith("/auth") && role) {
 			if (role === UserRole.ADMIN) {
 				await goto("/admin");
 				return;
 			}
 
 			await goto("/home");
+			return;
 		}
-		else if ($page.url.pathname.startsWith("/home") && role === UserRole.ADMIN) {
+		else if (!$page.url.pathname.startsWith("/admin") && role === UserRole.ADMIN) {
 			await goto("/admin");
+			return;
+		}
+		else if ($page.url.pathname.startsWith("/admin") && role !== UserRole.ADMIN) {
+			await goto("/home");
 			return;
 		}
 	});

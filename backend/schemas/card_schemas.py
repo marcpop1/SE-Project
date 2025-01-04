@@ -7,25 +7,22 @@ class CardDetailResponse(BaseModel):
     number: str
     expiration_month: int
     expiration_year: int
+    cvv: int
     type: str
     currency: str
-    is_primary: bool
 
     class Config:
-        orm_mode = True
         from_attributes = True
+        alias_generator = lambda string: ''.join(
+            word.capitalize() if i else word
+            for i, word in enumerate(string.split('_'))
+        )
+        populate_by_name = True
 
 
 class CreateCardRequest(BaseModel):
-    account_id: int
-    card_type: str
-    card_currency: str
-    is_primary: bool
-
-
-class UpdateCardRequest(BaseModel):
-    card_currency: str
-    is_primary: bool
+    type: str
+    currency: str
 
 
 class CardResponse(BaseModel):
@@ -38,7 +35,6 @@ class CardResponse(BaseModel):
     cvv: str
     type: str
     currency: str
-    is_primary: bool
 
     class Config:
         orm_mode = True

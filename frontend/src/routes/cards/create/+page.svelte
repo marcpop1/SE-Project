@@ -1,52 +1,40 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
-    import type { Account } from "$lib/models/Account";
+    import { CardType } from "$lib/models/CardType";
     import { Currency } from "$lib/models/Currency";
     import { enumToArray } from "$lib/utils/enumUtils";
     import { onMount } from "svelte";
 
-    let account: Account;
-
-    let username: string;
-    let amount: number;
+    let type: string;
     let currency: string;
     let errorMessage: string = "";
+    let cardTypes: string[] = [];
     let currencies: string[] = [];
 
-    onMount(async () => {
+    onMount(() => {
+        cardTypes = enumToArray(CardType);
         currencies = enumToArray(Currency);
-
-        const response = await fetch("http://localhost:8000/accounts/user/", {
-            method: "GET",
-            credentials: "include",
-        });
-
-        if (response.ok) {
-            account = await response.json();
-            console.log(account);
-        }
     });
 
-    async function createTransaction(event: any) {
+    async function createCard(event: any) {
         event.preventDefault();
         errorMessage = "";
 
-        const response = await fetch("http://localhost:8000/transactions/", {
+        const response = await fetch("http://localhost:8000/cards/", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
             credentials: "include",
             body: JSON.stringify({
-                account_to_username: username,
-                amount: amount,
+                type: type,
                 currency: currency,
             }),
         });
 
         if (response.ok) {
             const data = await response.json();
-            await goto("/transactions");
+            await goto("/cards");
         } else {
             const data = await response.json();
             errorMessage = data.detail;
@@ -55,32 +43,19 @@
 </script>
 
 <div class="flex flex-col items-center gap-4">
-    <h2 class="text-5xl my-5">
-        Balance: {account?.balance}
-        {account?.currency}
-    </h2>
     <label class="form-control w-full max-w-xs">
         <div class="label">
-            <span class="label-text">Username</span>
+            <span class="label-text">Type</span>
         </div>
-        <input
-            bind:value={username}
-            type="text"
-            placeholder="Type here"
-            class="input input-bordered w-full max-w-xs"
-        />
-    </label>
-
-    <label class="form-control w-full max-w-xs">
-        <div class="label">
-            <span class="label-text">Amount</span>
-        </div>
-        <input
-            bind:value={amount}
-            type="text"
-            placeholder="Type here"
-            class="input input-bordered w-full max-w-xs"
-        />
+        <select
+            class="select select-bordered w-full max-w-xs"
+            bind:value={type}
+        >
+            <option value="" disabled selected>Select card type</option>
+            {#each cardTypes as cardType}
+                <option value={cardType}>{cardType}</option>
+            {/each}
+        </select>
     </label>
 
     <label class="form-control w-full max-w-xs">
@@ -104,8 +79,8 @@
         {/if}
     </div>
     <div class="text-center">
-        <button class="btn btn-wide btn-primary" on:click={createTransaction}
-            >Create Transaction</button
+        <button class="btn btn-wide btn-primary" on:click={createCard}
+            >Create Card</button
         >
     </div>
 </div>

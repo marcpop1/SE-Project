@@ -15,3 +15,8 @@ npm install
 
 Command for starting server application (in /frontend):
 npm run dev
+
+The users available in the db backup have the following credentials:
+Users with usernames: "user1", "user2" etc, have passwords "test1", "test2", etc
+User with username: "johndoe" has password "john"
+Admin user: username: "admin", password: "admin"

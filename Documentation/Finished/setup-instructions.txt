@@ -1,0 +1,17 @@
+Create a .env file in backend directory and in that file define:
+DATABASE_URL={postgresql database url}
+SECRET_KEY={jwt secret key (can be anything)}
+ALGORITHM=HS256
+CURRENCY_API_KEY={ExchangeRate API key (get it by creating an account on their site)}
+
+Command for installing server dependencies (in /backend):
+pip install -r requirements.txt (after activating python virtual environment)
+
+Command for starting server application (in /backend):
+uvicorn main:app --reload
+
+Command for installing server dependencies (in /frontend):
+npm install
+
+Command for starting server application (in /frontend):
+npm run dev

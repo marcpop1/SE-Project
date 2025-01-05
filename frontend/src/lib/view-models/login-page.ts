@@ -1,6 +1,6 @@
 import { goto } from "$app/navigation";
 import { UserRole } from "$lib/models/UserRole";
-import { userRole } from "$lib/stores/userStore";
+import { userRole } from "$lib/stores/user-store";
 
 export class LoginPage {
     async login(username: string, password: string): Promise<string> {

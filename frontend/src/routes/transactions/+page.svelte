@@ -1,13 +1,14 @@
 <script lang="ts">
     import type { Transaction } from "$lib/models/Transaction";
     import { getTransactionStatusString } from "$lib/models/TransactionStatus";
-    import { getCounterparty, wasTransactionReverted } from "$lib/utils/transactionUtils";
+    import { TransactionUtils } from "$lib/utils/transaction-utils";
     import { TransactionsPage } from "$lib/view-models/transactions-page";
     import { onMount } from "svelte";
 
     let transactions: Transaction[];
 
     const transactionsPage = new TransactionsPage();
+    const transactionUtils = new TransactionUtils();
 
     onMount(async () => {
         transactions = await transactionsPage.onPageMount();
@@ -37,7 +38,7 @@
                             <div class="flex items-center gap-3">
                                 <div>
                                     <div class="font-bold">
-                                        {getCounterparty(transaction).name}
+                                        {transactionUtils.getCounterparty(transaction).name}
                                     </div>
                                 </div>
                             </div>
@@ -47,7 +48,7 @@
                         <td>{transaction.convertedAmount}</td>
                         <td>{transaction.rate}</td>
                         <td>{transaction.type}</td>
-                        <td class={wasTransactionReverted(transaction) ? 'bg-red-300' : ''}>{getTransactionStatusString(transaction.status)}</td>
+                        <td class={transactionUtils.wasTransactionReverted(transaction) ? 'bg-red-300' : ''}>{getTransactionStatusString(transaction.status)}</td>
                         <td>{transaction.createdAt?.toLocaleString()}</td>
                     </tr>
                 {/each}

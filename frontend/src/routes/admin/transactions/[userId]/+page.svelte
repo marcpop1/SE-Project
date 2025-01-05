@@ -3,7 +3,7 @@
     import type { Account } from "$lib/models/Account";
     import type { Transaction } from "$lib/models/Transaction";
     import { getTransactionStatusString } from "$lib/models/TransactionStatus";
-    import { getCounterparty, wasTransactionReverted } from "$lib/utils/transactionUtils";
+    import { TransactionUtils } from "$lib/utils/transaction-utils";
     import { AdminViewUserTransactionsPage } from "$lib/view-models/admin-view-user-transactions-page";
     import { onMount } from "svelte";
 
@@ -14,6 +14,7 @@
     $: userId = $page.params.userId;
 
     const adminViewUserTransactionsPage = new AdminViewUserTransactionsPage();
+    const transactionUtils = new TransactionUtils();
 
     onMount(async () => {
         account = await adminViewUserTransactionsPage.getAccount(userId);
@@ -49,14 +50,14 @@
                             : "bg-green-100"}
                     >
                         <td>{transaction.id}</td>
-                        <td>{getCounterparty(transaction).username}</td>
-                        <td>{getCounterparty(transaction).name}</td>
+                        <td>{transactionUtils.getCounterparty(transaction).username}</td>
+                        <td>{transactionUtils.getCounterparty(transaction).name}</td>
                         <td>{transaction.amount}</td>
                         <td>{transaction.currency}</td>
                         <td>{transaction.convertedAmount}</td>
                         <td>{transaction.rate}</td>
                         <td>{transaction.type}</td>
-                        <td class={wasTransactionReverted(transaction) ? 'bg-red-300' : ''}>{getTransactionStatusString(transaction.status)}</td
+                        <td class={transactionUtils.wasTransactionReverted(transaction) ? 'bg-red-300' : ''}>{getTransactionStatusString(transaction.status)}</td
                         >
                         <td>{transaction.createdAt?.toLocaleString()}</td>
                         <th>

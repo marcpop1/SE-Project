@@ -1,0 +1,282 @@
+@startuml
+
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+left to right direction
+
+package "Models" {
+    class Account {
+        +id: number
+        +userId: number
+        +balance: number
+        +currency: string
+        +user: UserDetails
+    }
+
+    class AccountOverview {
+        +user: UserDetails
+        +account: Account
+        +cards: Card[]
+        +transactions: Transaction[]
+    }
+
+    class UserDetails {
+        +id: number
+        +username: string
+        +name: string
+    }
+
+    enum Currency {
+        RON
+        EUR
+        USD
+        GBP
+    }
+
+    class Card {
+        +id: number
+        +accountId: number
+        +holderName: string
+        +number: string
+        +expirationMonth: number
+        +expirationYear: number
+        +cvv: string
+        +type: CardType
+        +currency: string
+    }
+
+    enum TransactionType {
+        TOP_UP
+        TRANSFER
+    }
+
+    class Transaction {
+        +id: number
+        +accountFromId: number
+        +accountToId: number
+        +amount: number
+        +currency: string
+        +convertedAmount: number
+        +rate: number
+        +status: TransactionStatus
+        +type: TransactionType
+        +createdAt: Date
+        +accountFrom: Account
+        +accountTo: Account
+    }
+
+    enum UserRole {
+        USER
+        ADMIN
+    }
+
+    enum TransactionStatus {
+        INITIATED
+        IN_PROGRESS
+        COMPLETED
+        REVERTED
+    }
+
+    class CardType {
+        VISA
+        MASTERCARD
+    }
+}
+
+package "Stores" {
+    class userStore {
+        +userRole: writable<string | null>
+    }
+}
+
+package "Utils" {
+    class UserUtils {
+        +logout(): Promise<void>
+    }
+
+    class EnumUtils {
+        +enumToArray(enumObj: any): string[]
+    }
+
+    class TransactionUtils {
+        +getCounterparty(transaction: Transaction): UserDetails
+        +wasTransactionReverted(transaction: Transaction): boolean
+    }
+}
+
+package "ViewModels" {
+    class AdminViewUserTransactionsPage {
+        +getAccount(userId: string): Promise<Account | null>
+        +getTransactions(userId: string): Promise<Transaction[]>
+        +reverseTransaction(transactionId: number): Promise<void>
+        +canReverseTransaction(transaction: Transaction): boolean
+    }
+
+    class AdminHomePage {
+        +onPageMount(): Promise<UserDetails[]>
+        +redirectToUserTransactions(userId: number): undefined
+    }
+
+    class CreateTransactionPage {
+        +onPageMount(): Promise<Account | null>
+        +createTransaction(username: string, amount: number, currency: string): Promise<string>
+    }
+
+    class TransactionsPage {
+        +onPageMount(): Promise<Transaction[]>
+        +redirectToCreateTransaction(): void
+    }
+
+    class CreateCardPage {
+        +createCard(type: string, currency: string): Promise<string>
+    }
+
+    class CardsPage {
+        +onPageMount(): Promise<Card[]>
+        +removeCard(cardId: number): Promise<void>
+        +redirectToCreateCard(): void
+    }
+
+    class RegisterPage {
+        +register(name: string, username: string, password: string): Promise<void>
+    }
+
+    class LoginPage {
+        +login(username: string, password: string): Promise<string>
+    }
+
+    class RouteGuard {
+        +checkRouteAccess(page: Page): Promise<void>
+    }
+
+    class HomePage {
+        +onPageMount(): Promise<AccountOverview>
+    }
+}
+
+package "Components" {
+    class AdminHeader
+    class BalanceCard
+    class CardsCard
+    class GuestHeader
+    class Header
+    class TransactionsCard
+}
+
+package "Views" {
+    class Layout {
+           
+    }
+
+    package "home" {
+        class HomeView {
+            
+        }
+    }
+
+    package "auth" {
+        package "login" {
+            class LoginView {
+                
+            }
+        }
+        package "register" {
+            class RegisterView {
+                
+            }
+        }
+    }
+
+    package "cards" {
+        class CardsView {
+            
+        }
+        package "create" {
+            class CreateCardView {
+                
+            }
+        }
+    }
+
+    package "transactions" {
+        class TransactionsView {
+            
+        }
+        package "create" {
+            class CreateTransactionView {
+                
+            }
+        }
+    }
+
+    package "admin" {
+        class AdminHomeView {
+            
+        }
+        package "transactions" {
+            class AdminViewUsersView {
+                    
+            }
+
+            package "[userId]" {
+                class AdminViewUserTransactionsView {
+                    
+                }
+            }
+        }
+    }
+}
+
+Account --> UserDetails
+AccountOverview --> Account
+AccountOverview --> Card
+AccountOverview --> Transaction
+Transaction --> Account
+Transaction --> TransactionStatus
+Transaction --> TransactionType
+Transaction --> UserDetails
+Card --> CardType
+Card --> Currency
+Transaction --> TransactionUtils
+UserDetails --> TransactionUtils
+RouteGuard --> UserRole
+RouteGuard --> userStore
+userStore --> UserUtils
+CardType --> EnumUtils
+Currency --> EnumUtils
+AdminViewUserTransactionsPage --> Account
+AdminViewUserTransactionsPage --> Transaction
+AdminViewUserTransactionsPage --> UserDetails
+AdminHomePage --> UserDetails
+CreateTransactionPage --> Account
+CreateTransactionPage --> Currency
+CreateTransactionPage --> Transaction
+TransactionsPage --> Transaction
+CreateCardPage --> CardType
+CreateCardPage --> Currency
+CardsPage --> Card
+RegisterPage --> UserDetails
+LoginPage --> UserRole
+LoginPage --> userStore
+HomePage --> AccountOverview
+
+Views.home.HomeView --> Components.BalanceCard
+Views.home.HomeView --> Components.CardsCard
+Views.home.HomeView --> Components.TransactionsCard
+Views.auth.login.LoginView --> ViewModels.LoginPage
+Views.auth.register.RegisterView --> ViewModels.RegisterPage
+Views.cards.CardsView --> ViewModels.CardsPage
+Views.cards.create.CreateCardView --> ViewModels.CreateCardPage
+Views.transactions.TransactionsView --> ViewModels.TransactionsPage
+Views.transactions.create.CreateTransactionView --> ViewModels.CreateTransactionPage
+Views.admin.AdminHomeView --> ViewModels.AdminHomePage
+Views.admin.transactions.userId.AdminViewUserTransactionsView --> ViewModels.AdminViewUserTransactionsPage
+Views.home.HomeView --> ViewModels.HomePage
+Components.Header --> Utils.UserUtils
+Components.AdminHeader --> Utils.UserUtils
+Views.Layout --> Components.Header
+Views.Layout --> Components.AdminHeader
+Views.Layout --> Components.GuestHeader
+Views.Layout --> ViewModels.RouteGuard
+
+@enduml

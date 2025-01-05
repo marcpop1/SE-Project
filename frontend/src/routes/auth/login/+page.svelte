@@ -1,8 +1,5 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
-  import { UserRole } from "$lib/models/UserRole";
-  import { userRole } from "$lib/stores/userStore";
-    import { LoginPage } from "$lib/view-models/login-page";
+  import { LoginPage } from "$lib/view-models/login-page";
 
   let username: string = "";
   let password: string = "";
@@ -12,7 +9,7 @@
 
   async function handleSubmit(event: any) {
     event.preventDefault();
-    
+
     errorMessage = await loginPage.login(username, password);
   }
 </script>

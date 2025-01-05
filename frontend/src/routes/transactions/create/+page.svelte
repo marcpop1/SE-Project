@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { Account } from "$lib/models/Account";
     import { Currency } from "$lib/models/Currency";
-    import { enumToArray } from "$lib/utils/enumUtils";
+    import { EnumUtils } from "$lib/utils/enum-utils";
     import { CreateTransactionPage } from "$lib/view-models/create-transaction-page";
     import { onMount } from "svelte";
 
@@ -14,9 +14,10 @@
     let currencies: string[] = [];
 
     const createTransactionPage = new CreateTransactionPage();
+    const enumUtils = new EnumUtils();
 
     onMount(async () => {
-        currencies = enumToArray(Currency);
+        currencies = enumUtils.enumToArray(Currency);
 
         account = await createTransactionPage.onPageMount();
     });

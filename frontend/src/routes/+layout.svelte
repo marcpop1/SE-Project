@@ -1,6 +1,6 @@
 <script lang="ts">
 	import "../app.css";
-	import { userRole } from "$lib/stores/userStore";
+	import { userRole } from "$lib/stores/user-store";
 	import { UserRole } from "$lib/models/UserRole";
 	import { afterNavigate, goto } from "$app/navigation";
     import { page } from "$app/stores";

@@ -1,7 +1,7 @@
 <script lang="ts">
     import { CardType } from "$lib/models/CardType";
     import { Currency } from "$lib/models/Currency";
-    import { enumToArray } from "$lib/utils/enumUtils";
+    import { EnumUtils } from "$lib/utils/enum-utils";
     import { CreateCardPage } from "$lib/view-models/create-card-page";
     import { onMount } from "svelte";
 
@@ -12,10 +12,11 @@
     let currencies: string[] = [];
 
     const createCardPage = new CreateCardPage();
+    const enumUtils = new EnumUtils();
 
     onMount(() => {
-        cardTypes = enumToArray(CardType);
-        currencies = enumToArray(Currency);
+        cardTypes = enumUtils.enumToArray(CardType);
+        currencies = enumUtils.enumToArray(Currency);
     });
 
     async function createCard(event: any) {

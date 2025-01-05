@@ -1,6 +1,6 @@
 import { goto } from "$app/navigation";
 import { UserRole } from "$lib/models/UserRole";
-import { userRole } from "$lib/stores/userStore";
+import { userRole } from "$lib/stores/user-store";
 import type { Page } from "@sveltejs/kit";
 
 export class RouteGuard {

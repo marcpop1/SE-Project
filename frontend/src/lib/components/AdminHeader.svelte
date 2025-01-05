@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-    import { logout } from '$lib/stores/userStore';
+    import { UserUtils } from '$lib/utils/user-utils';
+
+	const userUtils = new UserUtils();
 </script>
 
 <header class="justify-center">
@@ -13,7 +15,7 @@
 				<a href="/admin">Home</a>
 			</li>
 			<li>
-				<button on:click={async () => logout()}>Logout</button>
+				<button on:click={async () => userUtils.logout()}>Logout</button>
 			</li>
 		</ul>
 		<svg viewBox="0 0 2 3" aria-hidden="true">

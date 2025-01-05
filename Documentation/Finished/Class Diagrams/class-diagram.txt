@@ -1,0 +1,393 @@
+@startuml
+
+top to bottom direction
+
+hide methods
+hide members
+
+skinparam linetype ortho
+
+package "controllers" {
+    class AccountController {
+        + account_repository: AccountRepository
+        + add_new_account(data: CreateAccountRequest): AccountResponse
+        + get_all_for_user(user: UserDetailsResponse): list[AccountResponse]
+        + get_account_by_id(account_id: int): Account
+        + get_account_by_user_id(user_id: int): Account
+        + get_account_by_username(username: str): Account
+        + remove_account_by_id(account_id: int): None
+    }
+
+    class AccountOverviewController {
+        + user: UserDetailsResponse
+        + account_repository: AccountRepository
+        + transaction_repository: TransactionRepository
+        + card_repository: CardRepository
+        + transaction_serializer: TransactionSerializerController
+        + get_user_account_overview(): AccountOverviewResponse
+    }
+
+    class CardController {
+        + card_repository: CardRepository
+        + account_repository: AccountRepository
+        + find_cards_for_user(user: UserDetailsResponse): list[Card]
+        + create_new_card(user: UserDetailsResponse, data: CreateCardRequest): Card
+        + remove_card_by_id(card_id: int): None
+    }
+
+    class TransactionController {
+        + account_repository: AccountRepository
+        + transaction_repository: TransactionRepository
+        + transaction_serializer: TransactionSerializerController
+        + currency_view: CurrencyView
+        + get_by_id(transaction_id: int, user: UserDetailsResponse): TransactionResponse
+        + retrieve_all_for_user(user_id: int): list[TransactionResponse]
+        + delete_transaction(transaction_id: int, user: UserDetailsResponse): None
+        + place_transaction_between_accounts(afrom: Account, ato: Account, data: CreateTransactionRequest): TransactionResponse
+        + add_money(account: Account, data: AddMoneyRequest): TransactionResponse
+        + revert_transaction(transaction_id: int): TransactionResponse
+    }
+
+    class UserController {
+        + user_repository: UserRepository
+        + account_repository: AccountRepository
+        + register_user(data: CreateUserRequest, bcrypt): None
+        + authenticate(username: str, password: str, bcrypt): User
+        + create_access_token(user: User, key: str, alg: str, valid_period: timedelta): str
+        + get_all_users(): list[UserDetailsResponse]
+    }
+
+    class TransactionSerializerController {
+        + serialize_transaction(transaction: Transaction, user_id: int): TransactionResponse
+    }
+}
+
+package "models" {
+    class Account {
+        + id: int
+        + user_id: int
+        + balance: float
+        + currency: str
+        + user: User
+        + cards: list[Card]
+        + transactions_from: list[Transaction]
+        + transactions_to: list[Transaction]
+    }
+
+    class Card {
+        + id: int
+        + account_id: int
+        + holder_name: str
+        + number: str
+        + expiration_month: int
+        + expiration_year: int
+        + cvv: str
+        + type: str
+        + currency: str
+        + account: Account
+    }
+
+    class Transaction {
+        + id: int
+        + account_from_id: int
+        + account_to_id: int
+        + amount: float
+        + currency: str
+        + converted_amount: float
+        + rate: float
+        + type: TransactionType
+        + status: int
+        + created_at: datetime
+        + account_from: Account
+        + account_to: Account
+    }
+
+    class User {
+        + id: int
+        + username: str
+        + name: str
+        + hashed_password: str
+        + role: UserRole
+        + accounts: list[Account]
+    }
+}
+
+package "repositories" {
+    class AccountRepository {
+        + find_all_by_user_id(user_id: int): list[Account]
+        + find_one_by_user_id(user_id: int): Optional[Account]
+        + find_by_username(username: str): Optional[Account]
+    }
+
+    class CardRepository {
+        + find_all_by_user_id(user_id: int, limit: Optional[int]): list[Card]
+        + update_primary_status_by_user_id(user_id: int, is_primary: bool): None
+    }
+
+    class TransactionRepository {
+        + find_all_by_user_id(user_id: int, limit: Optional[int]): list[Transaction]
+        + find_one_by_user_id(transaction_id: int, user_id: int): Transaction
+    }
+
+    class UserRepository {
+        + find_by_username(username: str): User
+    }
+
+    class RepositoryBase {
+        + save(entity: T): T
+        + update(entity: T): T
+        + delete(entity: T): None
+        + find_by_id(id: int): T
+        + find_all(): list[T]
+    }
+}
+
+package "schemas" {
+    class AccountResponse {
+        + id: int
+        + user_id: int
+        + balance: float
+        + currency: str
+        + user: Optional[UserDetailsResponse]
+    }
+
+    class AddMoneyRequest {
+        + amount: float
+    }
+
+    class CardResponse {
+        + id: int
+        + holder_name: str
+        + number: str
+        + expiration_month: int
+        + expiration_year: int
+        + cvv: int
+        + type: str
+        + currency: str
+    }
+
+    class CreateAccountRequest {
+        + user_id: int
+        + balance: float
+        + currency: str
+    }
+
+    class CreateCardRequest {
+        + type: str
+        + currency: str
+    }
+
+    class CreateTransactionRequest {
+        + account_to_username: str
+        + amount: float
+        + currency: str
+    }
+
+    class CreateUserRequest {
+        + name: str
+        + username: str
+        + password: str
+    }
+
+    class TransactionResponse {
+        + id: int
+        + account_from_id: int
+        + account_to_id: int
+        + amount: float
+        + currency: str
+        + converted_amount: float
+        + rate: float
+        + created_at: datetime
+        + account_from: Optional[AccountResponse]
+        + account_to: Optional[AccountResponse]
+        + status: int
+        + type: TransactionType
+    }
+
+    class UserDetailsResponse {
+        + id: int
+        + username: str
+        + name: str
+        + role: str
+    }
+
+    class TokenResponse {
+        + access_token: str
+        + token_type: str
+        + user_role: str
+    }
+
+    class ConvertCurrencyRequest {
+        + from_currency: str
+        + to_currency: str
+        + amount: float
+    }
+
+    class ConvertCurrencyResponse {
+        + conversion_rate: float
+        + conversion_result: float
+    }
+
+    class AccountOverviewResponse {
+        + user: UserDetailsResponse
+        + account: AccountResponse
+        + cards: list[CardResponse]
+        + transactions: list[TransactionResponse]
+    }
+}
+
+package "shared.enums" {
+    enum Currency {
+        RON
+        EUR
+        USD
+        GBP
+    }
+
+    enum TransactionStatus {
+        INITIATED
+        IN_PROGRESS
+        COMPLETED
+        REVERTED
+    }
+
+    enum TransactionType {
+        TOP_UP
+        TRANSFER
+    }
+
+    enum UserRole {
+        ADMIN
+        USER
+    }
+}
+
+package "views" {
+    class UserView {
+        + user_controller: UserController
+        + bcrypt_context: CryptContext
+        + oauth2_bearer: OAuth2PasswordBearer
+        + register(payload: CreateUserRequest): None
+        + login(response: Response, form_data: OAuth2PasswordRequestForm): TokenResponse
+        + logout(response: Response): None
+    }
+
+    class AccountView {
+        + user: UserDetailsResponse
+        + account_controller: AccountController
+        + create_account(payload: CreateAccountRequest): AccountResponse
+        + list_accounts_for_user(): list[AccountResponse]
+        + retrieve_account_by_id(account_id: int): AccountResponse
+        + delete_account(account_id: int): None
+        + retrieve_first_by_user_id(): Account
+        + retrieve_by_username(username: str): AccountResponse
+    }
+
+    class CardView {
+        + card_controller: CardController
+        + user: UserDetailsResponse
+        + get_cards_for_user(): list[CardResponse]
+        + add_card_for_user(payload: CreateCardRequest): CardResponse
+        + remove_specified_card(card_id: int): None
+    }
+
+    class TransactionView {
+        + user: UserDetailsResponse
+        + transaction_controller: TransactionController
+        + account_controller: AccountController
+        + create_transaction(payload: CreateTransactionRequest): TransactionResponse
+        + list_all_for_logged_user(): list[TransactionResponse]
+        + get_by_id(transaction_id: int): TransactionResponse
+        + delete(transaction_id: int): None
+        + add_money(payload: AddMoneyRequest): TransactionResponse
+    }
+
+    class AdminView {
+        + user_controller: UserController
+        + account_controller: AccountController
+        + transaction_controller: TransactionController
+        + user: UserDetailsResponse
+        + list_all_users(): list[UserDetailsResponse]
+        + retrieve_by_user_id(user_id: int): AccountResponse
+        + list_transactions_made_by_user(user_id: int): list[TransactionResponse]
+        + revert_specified_transaction(transaction_id: int): None
+    }
+
+    class AccountOverviewView {
+        + account_overview_controller: AccountOverviewController
+        + get_user_account(): AccountOverviewResponse
+    }
+
+    class CurrencyView {
+        + convert_currency(request: ConvertCurrencyRequest): ConvertCurrencyResponse
+    }
+}
+
+skinparam classAttributeIconSize 0
+
+
+Account --> User : user
+Card --> Account : account
+Transaction --> Account : account_from
+Transaction --> Account : account_to
+AccountResponse --> UserDetailsResponse : user
+TransactionResponse --> AccountResponse : account_from
+TransactionResponse --> AccountResponse : account_to
+AccountOverviewResponse --> UserDetailsResponse : user
+AccountOverviewResponse --> AccountResponse : account
+AccountOverviewResponse --> CardResponse : cards
+AccountOverviewResponse --> TransactionResponse : transactions
+
+AccountRepository --> Account
+AccountRepository --> User
+CardRepository --> Card
+CardRepository --> Account
+TransactionRepository --> Transaction
+TransactionRepository --> Account
+UserRepository --> User
+RepositoryBase <|-- AccountRepository
+RepositoryBase <|-- CardRepository
+RepositoryBase <|-- TransactionRepository
+RepositoryBase <|-- UserRepository
+
+Account --> Currency : currency
+Card --> Currency : currency
+Transaction --> Currency : currency
+Transaction --> TransactionType : type
+Transaction --> TransactionStatus : status
+User --> UserRole : role
+TransactionResponse --> TransactionType : type
+TransactionResponse --> TransactionStatus : status
+UserDetailsResponse --> UserRole : role
+TokenResponse --> UserRole : user_role
+ConvertCurrencyRequest --> Currency : from_currency
+ConvertCurrencyRequest --> Currency : to_currency
+
+UserView --> UserController
+AccountView --> AccountController
+CardView --> CardController
+TransactionView --> TransactionController
+TransactionView --> AccountController
+AdminView --> UserController
+AdminView --> AccountController
+AdminView --> TransactionController
+AccountOverviewView --> AccountOverviewController
+CurrencyView --> ConvertCurrencyRequest
+CurrencyView --> ConvertCurrencyResponse
+
+TransactionController --> TransactionSerializerController
+AccountOverviewController --> TransactionSerializerController
+
+AccountController --> AccountRepository
+AccountOverviewController --> AccountRepository
+AccountOverviewController --> TransactionRepository
+AccountOverviewController --> CardRepository
+CardController --> CardRepository
+CardController --> AccountRepository
+TransactionController --> AccountRepository
+TransactionController --> TransactionRepository
+UserController --> UserRepository
+UserController --> AccountRepository
+
+
+@enduml

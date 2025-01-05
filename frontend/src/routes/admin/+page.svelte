@@ -1,25 +1,15 @@
 <script lang="ts">
-    import { goto } from "$app/navigation";
     import type { UserDetails } from "$lib/models/UserDetails";
+    import { AdminHomePage } from "$lib/view-models/admin-home-page";
     import { onMount } from "svelte";
 
     let users: UserDetails[];
 
+    const adminHomePage = new AdminHomePage();
+
     onMount(async () => {
-        const response = await fetch("http://localhost:8000/admin/users/", {
-            method: "GET",
-            credentials: "include",
-        });
-
-        if (response.ok) {
-            users = await response.json();
-            console.log(users);
-        }
+        users = await adminHomePage.onPageMount();
     });
-
-    function redirectToUserTransactions(userId: number): undefined {
-        goto(`admin/transactions/${userId}`);
-    }
 </script>
 
 <div class="h-max">
@@ -36,7 +26,7 @@
             </thead>
             <tbody>
                 {#each users as user}
-                    <tr class="hover" on:click={redirectToUserTransactions(user.id)}>
+                    <tr class="hover" on:click={adminHomePage.redirectToUserTransactions(user.id)}>
                         <td>
                             <div class="flex items-center gap-3">
                                 <div>

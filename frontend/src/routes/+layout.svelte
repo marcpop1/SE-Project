@@ -1,45 +1,20 @@
 <script lang="ts">
-	import Header from "./Header.svelte";
 	import "../app.css";
-	import { userRole } from "$lib/stores/userStore";
+	import { userRole } from "$lib/stores/user-store";
 	import { UserRole } from "$lib/models/UserRole";
-	import AdminHeader from "./AdminHeader.svelte";
-	import GuestHeader from "./GuestHeader.svelte";
 	import { afterNavigate, goto } from "$app/navigation";
     import { page } from "$app/stores";
+    import Header from "$lib/components/Header.svelte";
+	import AdminHeader from "$lib/components/AdminHeader.svelte";
+    import GuestHeader from "$lib/components/GuestHeader.svelte";
+    import { RouteGuard } from "$lib/view-models/route-guard";
 
 	let { children } = $props();
 
+	const routeGuard = new RouteGuard();
+
 	afterNavigate(async () => {
-		const role = localStorage.getItem("role");
-		console.log("after navigate " + role);
-		if (role) {
-			userRole.set(role);
-		} else {
-			userRole.set(null);
-		}
-
-		if ($page.url.pathname === "/") {
-			await goto("/auth/login");
-			return;
-		}
-		else if ($page.url.pathname.startsWith("/auth") && role) {
-			if (role === UserRole.ADMIN) {
-				await goto("/admin");
-				return;
-			}
-
-			await goto("/home");
-			return;
-		}
-		else if (!$page.url.pathname.startsWith("/admin") && role === UserRole.ADMIN) {
-			await goto("/admin");
-			return;
-		}
-		else if ($page.url.pathname.startsWith("/admin") && role !== UserRole.ADMIN) {
-			await goto("/home");
-			return;
-		}
+		routeGuard.checkRouteAccess($page);
 	});
 </script>
 

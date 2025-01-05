@@ -1,9 +1,11 @@
 <script lang="ts">
     import type { Transaction } from "$lib/models/Transaction";
     import { TransactionType } from "$lib/models/TransactionType";
-    import { getCounterparty } from "$lib/utils/transactionUtils";
+    import { TransactionUtils } from "$lib/utils/transaction-utils";
 
     export let transactions: Transaction[] = [];
+
+    const transactionUtils = new TransactionUtils();
 
     function isTopUpTransaction(transaction: Transaction): boolean {
         if (transaction.type === TransactionType.TOP_UP) {
@@ -18,7 +20,7 @@
             return transaction.type;
         }
 
-        return getCounterparty(transaction).name;
+        return transactionUtils.getCounterparty(transaction).name;
     }
 </script>
 

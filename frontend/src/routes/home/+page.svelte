@@ -1,45 +1,17 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import BalanceCard from "./BalanceCard.svelte";
-    import CardsCard from "./CardsCard.svelte";
-    import TransactionsCard from "./TransactionsCard.svelte";
-    import { goto } from "$app/navigation";
     import type { AccountOverview } from "$lib/models/AccountOverview";
+    import BalanceCard from "$lib/components/BalanceCard.svelte";
+    import CardsCard from "$lib/components/CardsCard.svelte";
+    import TransactionsCard from "$lib/components/TransactionsCard.svelte";
+    import { HomePage } from "$lib/view-models/home-page";
 
     let accountOverview: AccountOverview;
+    const homePage = new HomePage();
 
     onMount(async () => {
-        const response = await fetch("http://localhost:8000/account_overview/", {
-            credentials: "include",
-        });
-
-        if (response.ok) {
-            accountOverview = await response.json();
-            console.log(accountOverview);
-        } else {
-            await goto("/auth/login");
-        }
+        accountOverview = await homePage.onPageMount();
     });
-
-    async function logout() {
-        try {
-            const response = await fetch("http://localhost:8000/auth/logout", {
-                method: "POST",
-                credentials: "include",
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            console.log("Logout successful:", data);
-            localStorage.removeItem('role');
-            goto("/auth/login");
-        } catch (error) {
-            console.error("Failed to logout:", error);
-        }
-    }
 </script>
 
 <div class="home">

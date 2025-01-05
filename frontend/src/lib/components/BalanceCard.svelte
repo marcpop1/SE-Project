@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { goto, invalidate } from "$app/navigation";
-
     export let balance: number = 0;
     export let currency: string = "RON";
 

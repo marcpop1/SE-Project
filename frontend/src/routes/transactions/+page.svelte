@@ -1,35 +1,18 @@
 <script lang="ts">
-    import { goto } from "$app/navigation";
     import type { Transaction } from "$lib/models/Transaction";
     import { getTransactionStatusString } from "$lib/models/TransactionStatus";
-    import { getCounterparty, wasTransactionReverted } from "$lib/utils/transactionUtils";
+    import { TransactionUtils } from "$lib/utils/transaction-utils";
+    import { TransactionsPage } from "$lib/view-models/transactions-page";
     import { onMount } from "svelte";
 
     let transactions: Transaction[];
 
+    const transactionsPage = new TransactionsPage();
+    const transactionUtils = new TransactionUtils();
+
     onMount(async () => {
-        const response = await fetch("http://localhost:8000/transactions", {
-            method: "GET",
-            credentials: "include",
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            transactions = data.map((transaction: any) => {
-                const createdAt = new Date(transaction.createdAt);
-                console.log('createdAt:', createdAt, 'isDate:', createdAt instanceof Date);
-                return {
-                    ...transaction,
-                    createdAt
-                };
-            });
-            console.log(transactions);
-        }
+        transactions = await transactionsPage.onPageMount();
     });
-
-    function redirectToCreateTransaction() {
-        goto("/transactions/create");
-    }
 </script>
 
 <div class="h-max">
@@ -55,7 +38,7 @@
                             <div class="flex items-center gap-3">
                                 <div>
                                     <div class="font-bold">
-                                        {getCounterparty(transaction).name}
+                                        {transactionUtils.getCounterparty(transaction).name}
                                     </div>
                                 </div>
                             </div>
@@ -65,7 +48,7 @@
                         <td>{transaction.convertedAmount}</td>
                         <td>{transaction.rate}</td>
                         <td>{transaction.type}</td>
-                        <td class={wasTransactionReverted(transaction) ? 'bg-red-300' : ''}>{getTransactionStatusString(transaction.status)}</td>
+                        <td class={transactionUtils.wasTransactionReverted(transaction) ? 'bg-red-300' : ''}>{getTransactionStatusString(transaction.status)}</td>
                         <td>{transaction.createdAt?.toLocaleString()}</td>
                     </tr>
                 {/each}
@@ -76,7 +59,7 @@
         <div class="text-center mt-16">
             <button
                 class="btn btn-wide btn-primary"
-                on:click={redirectToCreateTransaction}
+                on:click={transactionsPage.redirectToCreateTransaction}
                 >Create New Transaction</button
             >
         </div>

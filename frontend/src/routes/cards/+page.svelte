@@ -1,43 +1,16 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
     import type { Card } from "$lib/models/Card";
+    import { CardsPage } from "$lib/view-models/cards-page";
     import { onMount } from "svelte";
 
     let cards: Card[] = [];
 
+    const cardsPage = new CardsPage();
+
     onMount(async () => {
-        const response = await fetch("http://localhost:8000/cards", {
-            method: "GET",
-            credentials: "include",
-        });
-
-        if (response.ok) {
-            cards = await response.json();
-            console.log(cards);
-        } else {
-            console.log("ERROR");
-        }
+        cards = await cardsPage.onPageMount();
     });
-
-    function redirectToCreateCard() {
-        goto("/cards/create");
-    }
-
-    async function removeCard(cardId: number): Promise<void> {
-        const response = await fetch(`http://localhost:8000/cards/${cardId}`, {
-            method: "DELETE",
-            credentials: "include",
-        });
-
-        if (response.ok) {
-            window.location.reload();
-        }
-        else {
-            console.log("ERROR");
-        }
-
-        return;
-    }
 </script>
 
 <div class="h-max">
@@ -69,7 +42,7 @@
                                 <button
                                     class="btn btn-ghost btn-xs"
                                     on:click={async () =>
-                                        await removeCard(card.id)}
+                                        await cardsPage.removeCard(card.id)}
                                     >Remove</button
                                 >
                             </th>
@@ -88,7 +61,7 @@
         <div class="text-center mt-16">
             <button
                 class="btn btn-wide btn-primary"
-                on:click={redirectToCreateCard}>Create New Card</button
+                on:click={cardsPage.redirectToCreateCard}>Create New Card</button
             >
         </div>
     </div>

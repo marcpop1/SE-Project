@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { goto } from "$app/navigation";
+    import { RegisterPage } from "$lib/view-models/register-page";
 
   let name: string = ""
   let username: string = "";
@@ -10,28 +10,16 @@
 
   $: isPasswordMatch = password === confirmPassword ? true : false;
 
+  const registerPage = new RegisterPage();
+
   async function handleSubmit(event: any) {
     event.preventDefault();
-    
+
     if (!isPasswordMatch) {
       return;
     }
-
-    const response = await fetch("http://localhost:8000/auth/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name: name, username: username, password: password }),
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      console.log("Login successful:", data);
-      await goto("/auth/login");
-    } else {
-      console.error("Login failed:", response.statusText);
-    }
+    
+    await registerPage.register(name, username, password);
   }
 </script>
 

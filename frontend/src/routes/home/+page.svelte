@@ -1,10 +1,10 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import BalanceCard from "./BalanceCard.svelte";
-    import CardsCard from "./CardsCard.svelte";
-    import TransactionsCard from "./TransactionsCard.svelte";
     import { goto } from "$app/navigation";
     import type { AccountOverview } from "$lib/models/AccountOverview";
+    import BalanceCard from "$lib/components/BalanceCard.svelte";
+    import CardsCard from "$lib/components/CardsCard.svelte";
+    import TransactionsCard from "$lib/components/TransactionsCard.svelte";
 
     let accountOverview: AccountOverview;
 

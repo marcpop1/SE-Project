@@ -1,12 +1,12 @@
 <script lang="ts">
-	import Header from "./Header.svelte";
 	import "../app.css";
 	import { userRole } from "$lib/stores/userStore";
 	import { UserRole } from "$lib/models/UserRole";
-	import AdminHeader from "./AdminHeader.svelte";
-	import GuestHeader from "./GuestHeader.svelte";
 	import { afterNavigate, goto } from "$app/navigation";
     import { page } from "$app/stores";
+    import Header from "$lib/components/Header.svelte";
+	import AdminHeader from "$lib/components/AdminHeader.svelte";
+    import GuestHeader from "$lib/components/GuestHeader.svelte";
 
 	let { children } = $props();
 

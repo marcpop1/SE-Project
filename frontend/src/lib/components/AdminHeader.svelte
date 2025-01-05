@@ -9,8 +9,8 @@
 			<path d="M0,0 L1,2 C1.5,3 1.5,3 2,3 L2,0 Z" />
 		</svg>
 		<ul>
-			<li aria-current={$page.url.pathname === '/home' ? 'page' : undefined}>
-				<a href="/home">Home</a>
+			<li aria-current={$page.url.pathname === '/admin' ? 'page' : undefined}>
+				<a href="/admin">Home</a>
 			</li>
 			<li>
 				<button on:click={async () => logout()}>Logout</button>

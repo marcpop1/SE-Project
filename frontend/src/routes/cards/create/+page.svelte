@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { goto } from "$app/navigation";
     import { CardType } from "$lib/models/CardType";
     import { Currency } from "$lib/models/Currency";
     import { enumToArray } from "$lib/utils/enumUtils";
+    import { CreateCardPage } from "$lib/view-models/create-card-page";
     import { onMount } from "svelte";
 
     let type: string;
@@ -11,6 +11,8 @@
     let cardTypes: string[] = [];
     let currencies: string[] = [];
 
+    const createCardPage = new CreateCardPage();
+
     onMount(() => {
         cardTypes = enumToArray(CardType);
         currencies = enumToArray(Currency);
@@ -18,27 +20,7 @@
 
     async function createCard(event: any) {
         event.preventDefault();
-        errorMessage = "";
-
-        const response = await fetch("http://localhost:8000/cards/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            credentials: "include",
-            body: JSON.stringify({
-                type: type,
-                currency: currency,
-            }),
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            await goto("/cards");
-        } else {
-            const data = await response.json();
-            errorMessage = data.detail;
-        }
+        errorMessage = await createCardPage.createCard(type, currency);
     }
 </script>
 

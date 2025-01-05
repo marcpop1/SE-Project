@@ -2,12 +2,9 @@
     import { page } from "$app/stores";
     import type { Account } from "$lib/models/Account";
     import type { Transaction } from "$lib/models/Transaction";
-    import {
-        getTransactionStatusString,
-        TransactionStatus,
-    } from "$lib/models/TransactionStatus";
-    import { TransactionType } from "$lib/models/TransactionType";
+    import { getTransactionStatusString } from "$lib/models/TransactionStatus";
     import { getCounterparty, wasTransactionReverted } from "$lib/utils/transactionUtils";
+    import { AdminViewUserTransactionsPage } from "$lib/view-models/admin-view-user-transactions-page";
     import { onMount } from "svelte";
 
     let userId: string;
@@ -16,82 +13,12 @@
 
     $: userId = $page.params.userId;
 
+    const adminViewUserTransactionsPage = new AdminViewUserTransactionsPage();
+
     onMount(async () => {
-        account = await getAccount();
-        transactions = await getTransactions();
+        account = await adminViewUserTransactionsPage.getAccount(userId);
+        transactions = await adminViewUserTransactionsPage.getTransactions(userId);
     });
-
-    async function getAccount(): Promise<Account | null> {
-        const response = await fetch(
-            `http://localhost:8000/admin/account/${userId}`,
-            {
-                method: "GET",
-                credentials: "include",
-            },
-        );
-
-        if (response.ok) {
-            const account = await response.json();
-            console.log(account);
-            return account;
-        }
-
-        return null;
-    }
-
-    async function getTransactions(): Promise<Transaction[]> {
-        const response = await fetch(
-            `http://localhost:8000/admin/transactions/${userId}`,
-            {
-                method: "GET",
-                credentials: "include",
-            },
-        );
-
-        if (response.ok) {
-            const data = await response.json();
-            transactions = data.map((transaction: any) => {
-                const createdAt = new Date(transaction.createdAt);
-                console.log(
-                    "createdAt:",
-                    createdAt,
-                    "isDate:",
-                    createdAt instanceof Date,
-                );
-                return {
-                    ...transaction,
-                    createdAt,
-                };
-            });
-            console.log(transactions);
-            return transactions;
-        }
-
-        return [];
-    }
-
-    async function reverseTransaction(transactionId: number): Promise<void> {
-        const response = await fetch(
-            `http://localhost:8000/admin/transactions/${transactionId}/revert/`,
-            {
-                method: "PUT",
-                credentials: "include",
-            },
-        );
-
-        if (response.ok) {
-            const data = await response.json();
-            console.log(data);
-            window.location.reload();
-        }
-    }
-
-    function canReverseTransaction(transaction: Transaction): boolean {
-        return (
-            transaction.type == TransactionType.TRANSFER &&
-            transaction.status == TransactionStatus.COMPLETED
-        );
-    }
 </script>
 
 <div class="h-max">
@@ -133,11 +60,11 @@
                         >
                         <td>{transaction.createdAt?.toLocaleString()}</td>
                         <th>
-                            {#if canReverseTransaction(transaction)}
+                            {#if adminViewUserTransactionsPage.canReverseTransaction(transaction)}
                                 <button
                                     class="btn btn-ghost btn-xs"
                                     on:click={async () =>
-                                        await reverseTransaction(
+                                        await adminViewUserTransactionsPage.reverseTransaction(
                                             transaction.id,
                                         )}>Reverse transaction</button
                                 >

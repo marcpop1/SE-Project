@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { goto } from "$app/navigation";
     import type { Account } from "$lib/models/Account";
     import { Currency } from "$lib/models/Currency";
     import { enumToArray } from "$lib/utils/enumUtils";
+    import { CreateTransactionPage } from "$lib/view-models/create-transaction-page";
     import { onMount } from "svelte";
 
-    let account: Account;
+    let account: Account | null;
 
     let username: string;
     let amount: number;
@@ -13,43 +13,18 @@
     let errorMessage: string = "";
     let currencies: string[] = [];
 
+    const createTransactionPage = new CreateTransactionPage();
+
     onMount(async () => {
         currencies = enumToArray(Currency);
 
-        const response = await fetch("http://localhost:8000/accounts/user/", {
-            method: "GET",
-            credentials: "include",
-        });
-
-        if (response.ok) {
-            account = await response.json();
-            console.log(account);
-        }
+        account = await createTransactionPage.onPageMount();
     });
 
     async function createTransaction(event: any) {
         event.preventDefault();
-        errorMessage = "";
-
-        const response = await fetch("http://localhost:8000/transactions/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            credentials: "include",
-            body: JSON.stringify({
-                account_to_username: username,
-                amount: amount,
-                currency: currency,
-            }),
-        });
-
-        if (response.ok) {
-            await goto("/transactions");
-        } else {
-            const data = await response.json();
-            errorMessage = data.detail;
-        }
+        
+        errorMessage = await createTransactionPage.createTransaction(username, amount, currency);
     }
 </script>
 
